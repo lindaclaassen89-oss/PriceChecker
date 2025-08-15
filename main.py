@@ -1,11 +1,14 @@
 import requests
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from time import time, sleep
+import os
 
 SHEETY_ENDPOINT = "https://api.sheety.co/d6b82e9c05bc37bf12c02605d8f5dd44/groceries/groceries"
 
@@ -14,12 +17,19 @@ sheety = requests.get(SHEETY_ENDPOINT, verify=False)
 sheety_list = sheety.json()["groceries"]
 # print(sheety_list)
 
-chrome_options = webdriver.ChromeOptions()
-chrome_options.add_experimental_option("detach", True)
+# chrome_options = webdriver.ChromeOptions()
+# chrome_options.add_experimental_option("detach", True)    # didn't work to keep browser open anyway
 
-driver = webdriver.Chrome(options=chrome_options)
+chrome_options = Options()
+# chrome_options.add_argument("--headless") runs Chrome invisibly in the background
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
 
+# Point to a locally downloaded ChromeDriver
+driver_path = os.path.join(os.path.dirname(__file__), "chromedriver-win64", "chromedriver.exe")
+service = Service(driver_path)
 
+driver = webdriver.Chrome(service=service, options=chrome_options)
 
 
 for store in ["sixty", "ww"]:
@@ -40,7 +50,7 @@ for store in ["sixty", "ww"]:
     # lets_go = driver.find_element(By.CLASS_NAME, "verify_button-primary__A9Zi8") 
     # lets_go.click()    
     
-    sleep(60)
+    sleep(30) # allow time for manual login so that the address can be used for nearest store and thus stock availability
 
     for item in sheety_list[0: len(sheety_list)-1]:
         search_bar = (  driver.find_element(By.CLASS_NAME, "search_input__kRTmL") if store == "sixty" 
