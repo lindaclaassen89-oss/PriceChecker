@@ -7,8 +7,9 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from time import time, sleep
+from time import sleep
 import os
+import platform
 
 SHEETY_ENDPOINT = "https://api.sheety.co/d6b82e9c05bc37bf12c02605d8f5dd44/groceries/groceries"
 
@@ -25,9 +26,18 @@ chrome_options = Options()
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
 
-# Point to a locally downloaded ChromeDriver
-driver_path = os.path.join(os.path.dirname(__file__), "chromedriver-win64", "chromedriver.exe")
-service = Service(driver_path)
+system = platform.system()
+
+if system == 'Windows':
+# Local Windows setup
+    driver_path = os.path.join(os.path.dirname(__file__), "chromedriver-win64", "chromedriver.exe")
+    service = Service(driver_path)
+elif system == 'Linux':
+# Streamlit Cloud or local Linux
+    chrome_options.binary_location = '/usr/bin/chromium-browser'
+    service = Service('/usr/bin/chromedriver')
+else:
+    raise Exception(f"Unsupported OS: {system}")
 
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
