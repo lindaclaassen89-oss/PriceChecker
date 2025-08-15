@@ -34,8 +34,8 @@ if system == 'Windows':
     service = Service(driver_path)
 elif system == 'Linux':
 # Streamlit Cloud or local Linux
-    chrome_options.binary_location = '/usr/bin/chromium-browser'
-    service = Service('/usr/bin/chromedriver')
+    chrome_options.binary_location = '/usr/bin/chromium'
+    service = Service('/usr/lib/chromium/chromedriver')
 else:
     raise Exception(f"Unsupported OS: {system}")
 
