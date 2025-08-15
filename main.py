@@ -16,7 +16,7 @@ SHEETY_ENDPOINT = "https://api.sheety.co/d6b82e9c05bc37bf12c02605d8f5dd44/grocer
 for root, dirs, files in os.walk("/"):
     for name in files:
         if "chromedriver" in name:
-print(os.path.join(root, name))
+            print(os.path.join(root, name))
 
 sheety = requests.get(SHEETY_ENDPOINT, verify=False)
 sheety_list = sheety.json()["groceries"]
@@ -101,6 +101,7 @@ for store in ["sixty", "ww"]:
                 }
             }
         response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
+
 
 
 
