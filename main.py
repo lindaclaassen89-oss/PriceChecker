@@ -16,7 +16,7 @@ SHEETY_ENDPOINT = "https://api.sheety.co/d6b82e9c05bc37bf12c02605d8f5dd44/grocer
 
 for root, dirs, files in os.walk("/"):
     for name in files:
-        if "chromedriver" in name:
+        if "chromium" in name or "chromedriver" in name:
             st.write(os.path.join(root, name))
 
 # sheety = requests.get(SHEETY_ENDPOINT, verify=False)
@@ -102,6 +102,7 @@ for root, dirs, files in os.walk("/"):
 #                 }
 #             }
 #         response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
+
 
 
 
