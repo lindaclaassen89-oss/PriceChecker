@@ -11,6 +11,7 @@ from time import sleep
 import os
 import platform
 import streamlit as st
+import subprocess
 
 SHEETY_ENDPOINT = "https://api.sheety.co/d6b82e9c05bc37bf12c02605d8f5dd44/groceries/groceries"
 
@@ -31,7 +32,10 @@ chrome_options = Options()
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
 
-system = platform.system()
+system = platform.system
+
+driver_path = subprocess.run(['which', 'chromedriver'], capture_output=True, text=True).stdout.strip()
+browser_path = subprocess.run(['which', 'chromium'], capture_output=True, text=True).stdout.strip()
 
 if system == 'Windows':
 # Local Windows setup
@@ -39,8 +43,8 @@ if system == 'Windows':
     service = Service(driver_path)
 elif system == 'Linux':
 # Streamlit Cloud or local Linux
-    chrome_options.binary_location = '/usr/bin/chromedriver'
-    service = Service('/usr/bin/chromium')
+    chrome_options.binary_location = browser_path
+    service = Service(driver_path)
 else:
     raise Exception(f"Unsupported OS: {system}")
 
@@ -102,6 +106,7 @@ for store in ["sixty", "ww"]:
                 }
             }
         response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
+
 
 
 
