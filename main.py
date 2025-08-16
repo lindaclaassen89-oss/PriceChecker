@@ -32,17 +32,16 @@ chrome_options = Options()
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
 
-system = platform.system
+system = platform.system().lower()
 
-driver_path = subprocess.run(['which', 'chromedriver'], capture_output=True, text=True).stdout.strip()
-browser_path = subprocess.run(['which', 'chromium'], capture_output=True, text=True).stdout.strip()
-
-if system == 'Windows':
+if system == 'windows':
 # Local Windows setup
     driver_path = os.path.join(os.path.dirname(__file__), "chromedriver-win64", "chromedriver.exe")
     service = Service(driver_path)
-elif system == 'Linux':
+elif system == 'linux':
 # Streamlit Cloud or local Linux
+    driver_path = subprocess.run(['which', 'chromedriver'], capture_output=True, text=True).stdout.strip()
+    browser_path = subprocess.run(['which', 'chromium'], capture_output=True, text=True).stdout.strip()
     chrome_options.binary_location = browser_path
     service = Service(driver_path)
 else:
@@ -64,11 +63,14 @@ for store in ["sixty", "ww"]:
     # phone_no = driver.find_element(By.CLASS_NAME, "phone-input_phone-input__jHqh5") 
     # phone_no.send_keys("795052593")
 
-    # sleep(10)
-
     # lets_go = driver.find_element(By.CLASS_NAME, "verify_button-primary__A9Zi8") 
     # lets_go.click()    
     
+    # sleep(10) # so that user can enter OTP
+
+    #...
+
+
     sleep(30) # allow time for manual login so that the address can be used for nearest store and thus stock availability
 
     for item in sheety_list[0: len(sheety_list)-1]:
@@ -106,12 +108,4 @@ for store in ["sixty", "ww"]:
                 }
             }
         response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
-
-
-
-
-
-
-
-
 
