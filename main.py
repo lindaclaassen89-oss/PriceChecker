@@ -13,24 +13,22 @@ import platform
 import streamlit
 import subprocess
 
+IS_STREAMLIT = os.getenv("RUNNING_STREAMLIT", "false").lower() == "true"
 SHEETY_ENDPOINT = "https://api.sheety.co/d6b82e9c05bc37bf12c02605d8f5dd44/groceries/groceries"
-
-# for root, dirs, files in os.walk("/"):
-#     for name in files:
-#         if "chromium" in name or "chromedriver" in name:
-#             st.write(os.path.join(root, name))
 
 sheety = requests.get(SHEETY_ENDPOINT, verify=False)
 sheety_list = sheety.json()["groceries"]
 # print(sheety_list)
 
-# chrome_options = webdriver.ChromeOptions()
-# chrome_options.add_experimental_option("detach", True)    # didn't work to keep browser open anyway
-
 chrome_options = Options()
-chrome_options.add_argument("--headless") #runs Chrome invisibly in the background - required for containerised Streamlit environment
+chrome_options.add_argument("--headless=new") #runs Chrome invisibly in the background - required for containerised Streamlit environment
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
+chrome_options.add_argument("--window-size=1920,1080")
+chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115 Safari/537.36")
+chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+chrome_options.add_experimental_option('useAutomationExtension', False)
+
 
 system = platform.system().lower()
 
@@ -57,12 +55,19 @@ for store in ["sixty", "ww"]:
 
     driver.get("https://www.checkers.co.za/" if store == "sixty" else "https://www.woolworths.co.za/dept/Food/_/N-1z13sk5")
 
-    # need to login so that the address can be used for nearest store and thus stock availability
+    # JS so that headless mode can work
+    driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    sleep(2) # give JS time to react
 
-    sign_in = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "profile-avatar_profile-avatar__edTU8")))
+
+    # Login so that the address can be used for nearest store and thus stock availability:
+
+    # sign_in = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".profile-avatar_profile-avatar__edTU8")))
+    sign_in = driver.find_element(By.CLASS_NAME, "profile-avatar_profile-avatar__edTU8")
     sign_in.click()
 
-    sign_in_2 = driver.find_element(By.CSS_SELECTOR, ".button_profile-menu-item___CNYr span")
+    sign_in_2 = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".button_profile-menu-item___CNYr span")))
     sign_in_2.click()
 
     phone_no = driver.find_element(By.CLASS_NAME, "phone-input_phone-input__jHqh5") 
@@ -71,7 +76,10 @@ for store in ["sixty", "ww"]:
     lets_go = driver.find_element(By.CLASS_NAME, "verify_button-primary__A9Zi8") 
     lets_go.click()    
     
-    OTP = streamlit.text_input("Please input OTP sent to 0" + cell_no + ":")
+    if IS_STREAMLIT:
+        OTP = streamlit.text_input("Please input OTP sent to 0" + cell_no + ":")
+    else:
+        OTP = input("Please input OTP sent to 0" + cell_no + ":")
 
     OTP_inputs = driver.find_elements(By.CLASS_NAME, "otp-input_otp-input__yxfQO")
     OTP_inputs[0].send_keys(OTP[0])
