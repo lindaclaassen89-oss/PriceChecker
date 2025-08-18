@@ -10,7 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from time import sleep
 import os
 import platform
-import streamlit as st
+import streamlit
 import subprocess
 
 SHEETY_ENDPOINT = "https://api.sheety.co/d6b82e9c05bc37bf12c02605d8f5dd44/groceries/groceries"
@@ -71,7 +71,7 @@ for store in ["sixty", "ww"]:
     lets_go = driver.find_element(By.CLASS_NAME, "verify_button-primary__A9Zi8") 
     lets_go.click()    
     
-    OTP = input("Please input OTP sent to 0" + cell_no + ":")
+    OTP = streamlit.text_input("Please input OTP sent to 0" + cell_no + ":")
 
     OTP_inputs = driver.find_elements(By.CLASS_NAME, "otp-input_otp-input__yxfQO")
     OTP_inputs[0].send_keys(OTP[0])
