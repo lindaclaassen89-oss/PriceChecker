@@ -59,7 +59,7 @@ for store in ["sixty", "ww"]:
 
     # need to login so that the address can be used for nearest store and thus stock availability
 
-    sign_in = driver.find_element(By.CLASS_NAME, "profile-avatar_profile-avatar__edTU8")
+    sign_in = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "profile-avatar_profile-avatar__edTU8")))
     sign_in.click()
 
     sign_in_2 = driver.find_element(By.CSS_SELECTOR, ".button_profile-menu-item___CNYr span")
