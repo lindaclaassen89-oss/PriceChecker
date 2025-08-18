@@ -28,7 +28,7 @@ sheety_list = sheety.json()["groceries"]
 # chrome_options.add_experimental_option("detach", True)    # didn't work to keep browser open anyway
 
 chrome_options = Options()
-# chrome_options.add_argument("--headless") runs Chrome invisibly in the background
+chrome_options.add_argument("--headless") #runs Chrome invisibly in the background - required for containerised Streamlit environment
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
 
@@ -50,28 +50,41 @@ else:
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
 
+cell_no = "795052593"
+dob = "29/12/1989"
+
 for store in ["sixty", "ww"]:
 
     driver.get("https://www.checkers.co.za/" if store == "sixty" else "https://www.woolworths.co.za/dept/Food/_/N-1z13sk5")
 
-    # sign_in = driver.find_element(By.CLASS_NAME, "profile-avatar_profile-avatar__edTU8")
-    # sign_in.click()
+    # need to login so that the address can be used for nearest store and thus stock availability
 
-    # sign_in_2 = driver.find_element(By.CSS_SELECTOR, ".button_profile-menu-item___CNYr span")
-    # sign_in_2.click()
+    sign_in = driver.find_element(By.CLASS_NAME, "profile-avatar_profile-avatar__edTU8")
+    sign_in.click()
 
-    # phone_no = driver.find_element(By.CLASS_NAME, "phone-input_phone-input__jHqh5") 
-    # phone_no.send_keys("795052593")
+    sign_in_2 = driver.find_element(By.CSS_SELECTOR, ".button_profile-menu-item___CNYr span")
+    sign_in_2.click()
 
-    # lets_go = driver.find_element(By.CLASS_NAME, "verify_button-primary__A9Zi8") 
-    # lets_go.click()    
+    phone_no = driver.find_element(By.CLASS_NAME, "phone-input_phone-input__jHqh5") 
+    phone_no.send_keys(cell_no)
+
+    lets_go = driver.find_element(By.CLASS_NAME, "verify_button-primary__A9Zi8") 
+    lets_go.click()    
     
-    # sleep(10) # so that user can enter OTP
+    OTP = input("Please input OTP sent to 0" + cell_no + ":")
 
-    #...
+    OTP_inputs = driver.find_elements(By.CLASS_NAME, "otp-input_otp-input__yxfQO")
+    OTP_inputs[0].send_keys(OTP[0])
+    OTP_inputs[1].send_keys(OTP[1])
+    OTP_inputs[2].send_keys(OTP[2])
+    OTP_inputs[3].send_keys(OTP[3])
+    OTP_inputs[3].send_keys(Keys.TAB + Keys.ENTER)
 
+    # DOB_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".input.input_input__qgb6Z")))
+    DOB_input = driver.find_element(By.XPATH, '//*[@id="tw-modal"]/div/div/div/div[1]/div/form/div[1]/div/input')
+    DOB_input.send_keys(dob)
+    DOB_input.send_keys(Keys.TAB + Keys.ENTER)
 
-    sleep(30) # allow time for manual login so that the address can be used for nearest store and thus stock availability
 
     for item in sheety_list[0: len(sheety_list)-1]:
         search_bar = (  driver.find_element(By.CLASS_NAME, "search_input__kRTmL") if store == "sixty" 
