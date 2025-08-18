@@ -21,13 +21,14 @@ sheety_list = sheety.json()["groceries"]
 # print(sheety_list)
 
 chrome_options = Options()
-chrome_options.add_argument("--headless=new") #runs Chrome invisibly in the background - required for containerised Streamlit environment
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
-chrome_options.add_argument("--window-size=1920,1080")
-chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115 Safari/537.36")
-chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-chrome_options.add_experimental_option('useAutomationExtension', False)
+if IS_STREAMLIT:
+    chrome_options.add_argument("--headless=new") #runs Chrome invisibly in the background - required for containerised Streamlit environment
+    chrome_options.add_argument("--window-size=1920,1080")
+    chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115 Safari/537.36")
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    chrome_options.add_experimental_option('useAutomationExtension', False)
 
 
 system = platform.system().lower()
@@ -62,9 +63,10 @@ for store in ["sixty", "ww"]:
 
 
     # Login so that the address can be used for nearest store and thus stock availability:
+    
+    WebDriverWait(driver, 10).until(lambda d: d.execute_script("return document.readyState") == "complete")
 
-    sign_in = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".profile-avatar_profile-avatar__edTU8")))
-    # sign_in = driver.find_element(By.CLASS_NAME, "profile-avatar_profile-avatar__edTU8")
+    sign_in = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//*[contains(@class, 'profile-avatar')]")))
     sign_in.click()
 
     sign_in_2 = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".button_profile-menu-item___CNYr span")))
