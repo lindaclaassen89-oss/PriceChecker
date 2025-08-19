@@ -112,10 +112,10 @@ for store in ["sixty", "ww"]:
     lets_go = driver.find_element(By.CLASS_NAME, "verify_button-primary__A9Zi8") 
     lets_go.click()    
     
-    if IS_STREAMLIT:
-        OTP = st.text_input("Please input OTP sent to 0" + cell_no + ":")
-    else:
-        OTP = input("Please input OTP sent to 0" + cell_no + ":")
+    # if IS_STREAMLIT:
+    OTP = st.text_input("Please input OTP sent to 0" + cell_no + ":")
+    # else:
+    #     OTP = input("Please input OTP sent to 0" + cell_no + ":")
 
     OTP_inputs = driver.find_elements(By.CLASS_NAME, "otp-input_otp-input__yxfQO")
     OTP_inputs[0].send_keys(OTP[0])
