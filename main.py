@@ -47,22 +47,7 @@ def get_linux_driver():
     try:
         service = Service(driver_path)
         driver = webdriver.Chrome(service=service, options=chrome_options)
-        st.write("Success")
-
-        # st.write(driver.capabilities.get("browserVersion"))
-        # st.write(driver.capabilities.get("chrome"))
-
-        # def get_chromedriver_version(path="drivers/linux/chromedriver"):
-        #     try:
-        #         result = subprocess.run([path, "--version"], capture_output=True, text=True)
-        #         return result.stdout.strip()
-        #     except Exception as e:
-        #         return f"Error: {e}"
-
-        # st.write("ChromeDriver version:", get_chromedriver_version())
-
         return driver
-    
     except Exception as e:
         st.error("🚨 Failed to launch Chromium")
         st.exception(e)
@@ -75,6 +60,9 @@ if system == 'windows':
 # Local Windows setup
     driver_path = os.path.join(os.path.dirname(__file__), "chromedriver-win64", "chromedriver.exe")
     service = Service(driver_path)
+    chrome_options = Options()
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
     driver = webdriver.Chrome(service=service, options=chrome_options)
 elif system == 'linux':
 # Streamlit Cloud or local Linux
@@ -83,87 +71,86 @@ else:
     raise Exception(f"Unsupported OS: {system}")
 
 
-# cell_no = "795052593"
-# dob = "29/12/1989"
+cell_no = "795052593"
+dob = "29/12/1989"
 
-# for store in ["sixty", "ww"]:
+for store in ["sixty", "ww"]:
 
-#     driver.get("https://www.checkers.co.za/" if store == "sixty" else "https://www.woolworths.co.za/dept/Food/_/N-1z13sk5")
+    driver.get("https://www.checkers.co.za/" if store == "sixty" else "https://www.woolworths.co.za/dept/Food/_/N-1z13sk5")
 
-#     # JS so that headless mode can work
-#     driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-#     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-#     sleep(2) # give JS time to react
+    # JS so that headless mode can work
+    driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    sleep(2) # give JS time to react
 
 
-#     # Login so that the address can be used for nearest store and thus stock availability:
+    # Login so that the address can be used for nearest store and thus stock availability:
     
-#     WebDriverWait(driver, 10).until(lambda d: d.execute_script("return document.readyState") == "complete")
+    WebDriverWait(driver, 10).until(lambda d: d.execute_script("return document.readyState") == "complete")
 
-#     sign_in = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//*[contains(@class, 'profile-avatar')]")))
-#     sign_in.click()
+    sign_in = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//*[contains(@class, 'profile-avatar')]")))
+    sign_in.click()
 
-#     sign_in_2 = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".button_profile-menu-item___CNYr span")))
-#     sign_in_2.click()
+    sign_in_2 = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".button_profile-menu-item___CNYr span")))
+    sign_in_2.click()
 
-#     phone_no = driver.find_element(By.CLASS_NAME, "phone-input_phone-input__jHqh5") 
-#     phone_no.send_keys(cell_no)
+    phone_no = driver.find_element(By.CLASS_NAME, "phone-input_phone-input__jHqh5") 
+    phone_no.send_keys(cell_no)
 
-#     lets_go = driver.find_element(By.CLASS_NAME, "verify_button-primary__A9Zi8") 
-#     lets_go.click()    
+    lets_go = driver.find_element(By.CLASS_NAME, "verify_button-primary__A9Zi8") 
+    lets_go.click()    
     
-#     if IS_STREAMLIT:
-#         OTP = streamlit.text_input("Please input OTP sent to 0" + cell_no + ":")
-#     else:
-#         OTP = input("Please input OTP sent to 0" + cell_no + ":")
+    if IS_STREAMLIT:
+        OTP = st.text_input("Please input OTP sent to 0" + cell_no + ":")
+    else:
+        OTP = input("Please input OTP sent to 0" + cell_no + ":")
 
-#     OTP_inputs = driver.find_elements(By.CLASS_NAME, "otp-input_otp-input__yxfQO")
-#     OTP_inputs[0].send_keys(OTP[0])
-#     OTP_inputs[1].send_keys(OTP[1])
-#     OTP_inputs[2].send_keys(OTP[2])
-#     OTP_inputs[3].send_keys(OTP[3])
-#     OTP_inputs[3].send_keys(Keys.TAB + Keys.ENTER)
+    OTP_inputs = driver.find_elements(By.CLASS_NAME, "otp-input_otp-input__yxfQO")
+    OTP_inputs[0].send_keys(OTP[0])
+    OTP_inputs[1].send_keys(OTP[1])
+    OTP_inputs[2].send_keys(OTP[2])
+    OTP_inputs[3].send_keys(OTP[3])
+    OTP_inputs[3].send_keys(Keys.TAB + Keys.ENTER)
 
-#     # DOB_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".input.input_input__qgb6Z")))
-#     DOB_input = driver.find_element(By.XPATH, '//*[@id="tw-modal"]/div/div/div/div[1]/div/form/div[1]/div/input')
-#     DOB_input.send_keys(dob)
-#     DOB_input.send_keys(Keys.TAB + Keys.ENTER)
+    # DOB_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".input.input_input__qgb6Z")))
+    DOB_input = driver.find_element(By.XPATH, '//*[@id="tw-modal"]/div/div/div/div[1]/div/form/div[1]/div/input')
+    DOB_input.send_keys(dob)
+    DOB_input.send_keys(Keys.TAB + Keys.ENTER)
 
 
-#     for item in sheety_list[0: len(sheety_list)-1]:
-#         search_bar = (  driver.find_element(By.CLASS_NAME, "search_input__kRTmL") if store == "sixty" 
-#                         else driver.find_element(By.ID, "cio-autocomplete-0-input"))
-#         search_bar.clear()
-#         search_bar.send_keys(item["item"])
-#         search_bar = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "search_input__kRTmL")) if store == "sixty" else EC.element_to_be_clickable((By.ID, "cio-autocomplete-0-input")))
-#         search_bar.send_keys(Keys.ENTER)
+    for item in sheety_list[0: len(sheety_list)-1]:
+        search_bar = (  driver.find_element(By.CLASS_NAME, "search_input__kRTmL") if store == "sixty" 
+                        else driver.find_element(By.ID, "cio-autocomplete-0-input"))
+        search_bar.clear()
+        search_bar.send_keys(item["item"])
+        search_bar = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "search_input__kRTmL")) if store == "sixty" else EC.element_to_be_clickable((By.ID, "cio-autocomplete-0-input")))
+        search_bar.send_keys(Keys.ENTER)
 
-#         sleep(5)
+        sleep(5)
 
-#         topN = item["considerTopNItems"] #precision of search text will affect relevance
-#         # wait = WebDriverWait(driver, 10)
-#         # topresults = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".product-card_card__DsB3_ a")))
-#         topresults = [item.get_attribute("href") for item in 
-#                       (driver.find_elements(By.CSS_SELECTOR, ".product-card_card__DsB3_ a") if store == "sixty" 
-#                         else driver.find_elements(By.CLASS_NAME, "product--view"))][0:topN]
-#         topresults_prices = [float(item.text.split('R')[1]) for item in 
-#                              driver.find_elements(By.CLASS_NAME, "price-display_full__ngphI" if store == "sixty" else "price")][0:topN]
-#         if len(topresults) > 0:
-#             cheapest_price = min(topresults_prices)
-#             cheapest_result = topresults[topresults_prices.index(cheapest_price)]
-#             update_json = {
-#                 "grocery":{
-#                     f"{store}CheapestPrice": int(cheapest_price),
-#                     f"{store}CheapestLink": cheapest_result,
-#                 }
-#             }
-#         else:
-#             update_json = {
-#                 "grocery":{
-#                     f"{store}CheapestPrice": "None",
-#                     f"{store}CheapestLink": "None",
-#                 }
-#             }
-#         response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
-
+        topN = item["considerTopNItems"] #precision of search text will affect relevance
+        # wait = WebDriverWait(driver, 10)
+        # topresults = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".product-card_card__DsB3_ a")))
+        topresults = [item.get_attribute("href") for item in 
+                      (driver.find_elements(By.CSS_SELECTOR, ".product-card_card__DsB3_ a") if store == "sixty" 
+                        else driver.find_elements(By.CLASS_NAME, "product--view"))][0:topN]
+        topresults_prices = [float(item.text.split('R')[1]) for item in 
+                             driver.find_elements(By.CLASS_NAME, "price-display_full__ngphI" if store == "sixty" else "price")][0:topN]
+        if len(topresults) > 0:
+            cheapest_price = min(topresults_prices)
+            cheapest_result = topresults[topresults_prices.index(cheapest_price)]
+            update_json = {
+                "grocery":{
+                    f"{store}CheapestPrice": int(cheapest_price),
+                    f"{store}CheapestLink": cheapest_result,
+                }
+            }
+        else:
+            update_json = {
+                "grocery":{
+                    f"{store}CheapestPrice": "None",
+                    f"{store}CheapestLink": "None",
+                }
+            }
+        response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
 
