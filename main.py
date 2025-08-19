@@ -30,7 +30,8 @@ if IS_STREAMLIT:
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115 Safari/537.36")
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
     chrome_options.add_experimental_option('useAutomationExtension', False)
-
+    chrome_options.add_argument("--window-size=1920,1080")
+    chrome_options.add_argument("--remote-debugging-port=9222") # Optional but stabilizing
 
 system = platform.system().lower()
 
@@ -47,7 +48,11 @@ elif system == 'linux':
 else:
     raise Exception(f"Unsupported OS: {system}")
 
-driver = webdriver.Chrome(service=service, options=chrome_options)
+try:
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+except Exception as e:
+    streamlit.error(f"Failed to launch browser: {e}")
+
 
 streamlit.write(driver.capabilities.get("browserVersion"))
 streamlit.write(driver.capabilities.get("chrome"))
