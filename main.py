@@ -50,22 +50,21 @@ else:
 
 try:
     driver = webdriver.Chrome(service=service, options=chrome_options)
+
+    streamlit.write(driver.capabilities.get("browserVersion"))
+    streamlit.write(driver.capabilities.get("chrome"))
+
+    def get_chromedriver_version(path="drivers/linux/chromedriver"):
+        try:
+            result = subprocess.run([path, "--version"], capture_output=True, text=True)
+            return result.stdout.strip()
+        except Exception as e:
+            return f"Error: {e}"
+
+    streamlit.write("ChromeDriver version:", get_chromedriver_version())
+
 except Exception as e:
     streamlit.error(f"Failed to launch browser: {e}")
-
-
-streamlit.write(driver.capabilities.get("browserVersion"))
-streamlit.write(driver.capabilities.get("chrome"))
-
-def get_chromedriver_version(path="drivers/linux/chromedriver"):
-    try:
-        result = subprocess.run([path, "--version"], capture_output=True, text=True)
-        return result.stdout.strip()
-    except Exception as e:
-        return f"Error: {e}"
-
-streamlit.write("ChromeDriver version:", get_chromedriver_version())
-
 
 # cell_no = "795052593"
 # dob = "29/12/1989"
