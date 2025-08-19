@@ -10,7 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from time import sleep
 import os
 import platform
-import streamlit
+import streamlit as st
 import subprocess
 
 IS_STREAMLIT = os.getenv("RUNNING_STREAMLIT", "false").lower() == "true"
@@ -20,18 +20,53 @@ sheety = requests.get(SHEETY_ENDPOINT, verify=False)
 sheety_list = sheety.json()["groceries"]
 # print(sheety_list)
 
-chrome_options = Options()
-chrome_options.add_argument("--disable-gpu")
-chrome_options.add_argument("--no-sandbox")
-chrome_options.add_argument("--disable-dev-shm-usage")
-if IS_STREAMLIT:
-    chrome_options.add_argument("--headless=new") #runs Chrome invisibly in the background - required for containerised Streamlit environment
+def get_linux_driver():
+    # Detect paths
+    driver_path = subprocess.run(['which', 'chromedriver'], capture_output=True, text=True).stdout.strip()
+    browser_path = subprocess.run(['which', 'chromium'], capture_output=True, text=True).stdout.strip()
+
+    if not driver_path or not browser_path:
+        st.error("❌ Could not find chromedriver or chromium in PATH.")
+        return None
+
+    # Set up options
+    chrome_options = Options()
+    chrome_options.binary_location = browser_path
+    chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--window-size=1920,1080")
-    chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115 Safari/537.36")
-    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    chrome_options.add_experimental_option('useAutomationExtension', False)
-    chrome_options.add_argument("--window-size=1920,1080")
-    chrome_options.add_argument("--remote-debugging-port=9222") # Optional but stabilizing
+    chrome_options.add_argument("--remote-debugging-port=9222")
+
+    # Optional: ensure /tmp is writable
+    if not os.access("/tmp", os.W_OK):
+        st.warning("⚠️ /tmp is not writable. Chromium may fail to launch.")
+
+    # Launch driver
+    try:
+        service = Service(driver_path)
+        driver = webdriver.Chrome(service=service, options=chrome_options)
+
+        # st.write(driver.capabilities.get("browserVersion"))
+        # st.write(driver.capabilities.get("chrome"))
+
+        # def get_chromedriver_version(path="drivers/linux/chromedriver"):
+        #     try:
+        #         result = subprocess.run([path, "--version"], capture_output=True, text=True)
+        #         return result.stdout.strip()
+        #     except Exception as e:
+        #         return f"Error: {e}"
+
+        # st.write("ChromeDriver version:", get_chromedriver_version())
+
+        return driver
+    
+    except Exception as e:
+        st.error("🚨 Failed to launch Chromium")
+        st.exception(e)
+        return None
+
 
 system = platform.system().lower()
 
@@ -39,32 +74,13 @@ if system == 'windows':
 # Local Windows setup
     driver_path = os.path.join(os.path.dirname(__file__), "chromedriver-win64", "chromedriver.exe")
     service = Service(driver_path)
+    driver = webdriver.Chrome(service=service, options=chrome_options)
 elif system == 'linux':
 # Streamlit Cloud or local Linux
-    driver_path = subprocess.run(['which', 'chromedriver'], capture_output=True, text=True).stdout.strip()
-    browser_path = subprocess.run(['which', 'chromium'], capture_output=True, text=True).stdout.strip()
-    chrome_options.binary_location = browser_path
-    service = Service(driver_path)
+    get_linux_driver()
 else:
     raise Exception(f"Unsupported OS: {system}")
 
-try:
-    driver = webdriver.Chrome(service=service, options=chrome_options)
-
-    streamlit.write(driver.capabilities.get("browserVersion"))
-    streamlit.write(driver.capabilities.get("chrome"))
-
-    def get_chromedriver_version(path="drivers/linux/chromedriver"):
-        try:
-            result = subprocess.run([path, "--version"], capture_output=True, text=True)
-            return result.stdout.strip()
-        except Exception as e:
-            return f"Error: {e}"
-
-    streamlit.write("ChromeDriver version:", get_chromedriver_version())
-
-except Exception as e:
-    streamlit.error(f"Failed to launch browser: {e}")
 
 # cell_no = "795052593"
 # dob = "29/12/1989"
