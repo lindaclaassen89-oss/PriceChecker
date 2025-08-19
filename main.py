@@ -66,7 +66,7 @@ if system == 'windows':
     driver = webdriver.Chrome(service=service, options=chrome_options)
 elif system == 'linux':
 # Streamlit Cloud or local Linux
-    get_linux_driver()
+    driver = get_linux_driver()
 else:
     raise Exception(f"Unsupported OS: {system}")
 
