@@ -47,6 +47,7 @@ def get_linux_driver():
     try:
         service = Service(driver_path)
         driver = webdriver.Chrome(service=service, options=chrome_options)
+        st.write("Success")
 
         # st.write(driver.capabilities.get("browserVersion"))
         # st.write(driver.capabilities.get("chrome"))
@@ -164,4 +165,5 @@ else:
 #                 }
 #             }
 #         response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
+
 
