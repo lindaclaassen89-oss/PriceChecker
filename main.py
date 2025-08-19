@@ -88,10 +88,13 @@ for store in ["sixty", "ww"]:
     
     WebDriverWait(driver, 10).until(lambda d: d.execute_script("return document.readyState") == "complete")
 
-    sign_in = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, "//*[contains(@class, 'profile-avatar')]")))
+    sign_in = WebDriverWait(driver, 20).until(
+        lambda d:   EC.presence_of_element_located((By.XPATH, "//*[contains(@class, 'profile-avatar')]"))(d) and
+                    EC.element_to_be_clickable((By.XPATH, "//*[contains(@class, 'profile-avatar')]"))(d)
+        )
     sign_in.click()
 
-    sign_in_2 = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".button_profile-menu-item___CNYr span")))
+    sign_in_2 = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".button_profile-menu-item___CNYr span")))
     sign_in_2.click()
 
     phone_no = driver.find_element(By.CLASS_NAME, "phone-input_phone-input__jHqh5") 
@@ -153,5 +156,4 @@ for store in ["sixty", "ww"]:
                 }
             }
         response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
-
 
