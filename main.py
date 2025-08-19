@@ -117,6 +117,9 @@ for store in ["sixty", "ww"]:
     # else:
     #     OTP = input("Please input OTP sent to 0" + cell_no + ":")
 
+    st.write((OTP))
+    st.write(type(OTP))
+
     OTP_inputs = driver.find_elements(By.CLASS_NAME, "otp-input_otp-input__yxfQO")
     OTP_inputs[0].send_keys(OTP[0])
     OTP_inputs[1].send_keys(OTP[1])
