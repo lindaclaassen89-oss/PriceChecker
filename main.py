@@ -123,6 +123,10 @@ for store in ["sixty", "ww"]:
     else:
 
         OTP_inputs = driver.find_elements(By.CLASS_NAME, "otp-input_otp-input__yxfQO")
+
+        st.write(OTP_inputs.count())
+        st.write(OTP[0])
+
         OTP_inputs[0].send_keys(OTP[0])
         OTP_inputs[1].send_keys(OTP[1])
         OTP_inputs[2].send_keys(OTP[2])
