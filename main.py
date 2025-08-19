@@ -12,6 +12,8 @@ import os
 import platform
 import streamlit as st
 import subprocess
+from PIL import Image
+
 
 IS_STREAMLIT = os.getenv("RUNNING_STREAMLIT", "false").lower() == "true"
 SHEETY_ENDPOINT = "https://api.sheety.co/d6b82e9c05bc37bf12c02605d8f5dd44/groceries/groceries"
@@ -87,6 +89,11 @@ for store in ["sixty", "ww"]:
     # Login so that the address can be used for nearest store and thus stock availability:
     
     WebDriverWait(driver, 10).until(lambda d: d.execute_script("return document.readyState") == "complete")
+
+    driver.save_screenshot("debug.png")
+    image = Image.open("debug.png")
+    st.image(image, caption="Screenshot before Timeout", use_column_width=True)
+    st.write(driver.page_source)
 
     sign_in = WebDriverWait(driver, 20).until(
         lambda d:   EC.presence_of_element_located((By.XPATH, "//*[contains(@class, 'profile-avatar')]"))(d) and
