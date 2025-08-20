@@ -91,6 +91,10 @@ for store in ["sixty", "ww"]:
     WebDriverWait(driver, 10).until(lambda d: d.execute_script("return document.readyState") == "complete")
 
     if "OTP" not in st.session_state: # Streamlit is reactive, meaning it automatically reruns your script from top to bottom every time a user interacts with a widget
+        driver.save_screenshot("debug.png")
+        image = Image.open("debug.png")
+        st.image(image, caption="Screenshot before sign_in", use_container_width=True)
+        st.write(driver.page_source)
 
         sign_in = WebDriverWait(driver, 20).until(
             lambda d:   EC.presence_of_element_located((By.XPATH, "//*[contains(@class, 'profile-avatar')]"))(d) and
