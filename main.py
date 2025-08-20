@@ -82,7 +82,6 @@ for store in ["sixty", "ww"]:
     driver.get("https://www.checkers.co.za/" if store == "sixty" else "https://www.woolworths.co.za/dept/Food/_/N-1z13sk5")
 
     # JS so that headless mode can work
-    driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     sleep(2) # give JS time to react
 
