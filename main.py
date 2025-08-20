@@ -92,6 +92,11 @@ for store in ["sixty", "ww"]:
     
     WebDriverWait(driver, 10).until(lambda d: d.execute_script("return document.readyState") == "complete")
 
+    driver.save_screenshot("debug.png")
+    image = Image.open("debug.png")
+    st.image(image, caption="Screenshot before Timeout", use_container_width=True)
+    st.write(driver.page_source)
+
     sign_in = WebDriverWait(driver, 20).until(
         lambda d:   EC.presence_of_element_located((By.XPATH, "//*[contains(@class, 'profile-avatar')]"))(d) and
                     EC.element_to_be_clickable((By.XPATH, "//*[contains(@class, 'profile-avatar')]"))(d)
@@ -131,7 +136,7 @@ for store in ["sixty", "ww"]:
 
     driver.save_screenshot("debug.png")
     image = Image.open("debug.png")
-    st.image(image, caption="Screenshot before Timeout", use_container_width=True)
+    st.image(image, caption="Screenshot before OTP_inputs", use_container_width=True)
     st.write(driver.page_source)
 
 
@@ -187,9 +192,4 @@ for store in ["sixty", "ww"]:
                 }
             }
         response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
-
-
-
-
-
 
