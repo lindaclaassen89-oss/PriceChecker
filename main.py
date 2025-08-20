@@ -90,48 +90,29 @@ for store in ["sixty", "ww"]:
     
     WebDriverWait(driver, 10).until(lambda d: d.execute_script("return document.readyState") == "complete")
 
-    # driver.save_screenshot("debug.png")
-    # image = Image.open("debug.png")
-    # st.image(image, caption="Screenshot before Timeout", use_container_width=True)
-    # st.write(driver.page_source)
+    if "OTP" not in st.session_state: # Streamlit is reactive, meaning it automatically reruns your script from top to bottom every time a user interacts with a widget
 
-    sign_in = WebDriverWait(driver, 20).until(
-        lambda d:   EC.presence_of_element_located((By.XPATH, "//*[contains(@class, 'profile-avatar')]"))(d) and
-                    EC.element_to_be_clickable((By.XPATH, "//*[contains(@class, 'profile-avatar')]"))(d)
-        )
-    sign_in.click()
+        sign_in = WebDriverWait(driver, 20).until(
+            lambda d:   EC.presence_of_element_located((By.XPATH, "//*[contains(@class, 'profile-avatar')]"))(d) and
+                        EC.element_to_be_clickable((By.XPATH, "//*[contains(@class, 'profile-avatar')]"))(d)
+            )
+        sign_in.click()
 
-    sign_in_2 = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".button_profile-menu-item___CNYr span")))
-    sign_in_2.click()
+        sign_in_2 = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".button_profile-menu-item___CNYr span")))
+        sign_in_2.click()
 
-    phone_no = driver.find_element(By.CLASS_NAME, "phone-input_phone-input__jHqh5") 
-    phone_no.send_keys(cell_no)
+        phone_no = driver.find_element(By.CLASS_NAME, "phone-input_phone-input__jHqh5") 
+        phone_no.send_keys(cell_no)
 
-    lets_go = driver.find_element(By.CLASS_NAME, "verify_button-primary__A9Zi8") 
-    # lets_go.click()    
-    
+        lets_go = driver.find_element(By.CLASS_NAME, "verify_button-primary__A9Zi8") 
+        lets_go.click()    
 
-    # # Initialize session state
-    # if "OTP" not in st.session_state:
-    #     st.session_state.OTP = ""
+        # Text input using session state
+        st.text_input("Please input OTP sent to 0" + cell_no + ":", key="OTP")
 
-    # # Button to trigger rerun and clear input
-    # if st.button("Rerun and Clear"):
-    #     st.session_state.OTP = ""
-    #     st.experimental_rerun()
+    OTP = st.session_state.OTP
 
-    # # Text input using session state
-    # st.text_input("Enter OTP:", key="OTP")
-
-    # OTP = st.session_state.OTP
-    OTP = st.text_input("Please input OTP sent to 0" + cell_no + ":")
-    sleep(30)
     #OTP = input("Please input OTP sent to 0" + cell_no + ":")
-
-    # if not OTP:
-    #     st.stop() # Streamlit is reactive, meaning it automatically reruns your script from top to bottom every time a user interacts with a widget
-
-    # else:
 
     driver.save_screenshot("debug.png")
     image = Image.open("debug.png")
@@ -193,5 +174,4 @@ for store in ["sixty", "ww"]:
                 }
             }
         response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
-
 
