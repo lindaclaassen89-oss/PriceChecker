@@ -109,7 +109,7 @@ for store in ["sixty", "ww"]:
         phone_no.send_keys(cell_no)
 
         lets_go = driver.find_element(By.CLASS_NAME, "verify_button-primary__A9Zi8") 
-        lets_go.click()    
+        # lets_go.click()    
 
         # Text input using session state
         st.text_input("Please input OTP sent to 0" + cell_no + ":", key="OTP")
@@ -126,7 +126,7 @@ for store in ["sixty", "ww"]:
     st.write(OTP)
     st.write(len(OTP_inputs))
     st.image(image, caption="Screenshot before OTP_inputs", use_container_width=True)
-    st.write(driver.page_source)
+    # st.write(driver.page_source)
 
     OTP_inputs[0].send_keys(OTP[0])
     OTP_inputs[1].send_keys(OTP[1])
@@ -178,6 +178,7 @@ for store in ["sixty", "ww"]:
                 }
             }
         response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
+
 
 
 
