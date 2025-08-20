@@ -108,7 +108,7 @@ for store in ["sixty", "ww"]:
     phone_no.send_keys(cell_no)
 
     lets_go = driver.find_element(By.CLASS_NAME, "verify_button-primary__A9Zi8") 
-    # lets_go.click()    
+    lets_go.click()    
     
 
     # Initialize session state
@@ -189,5 +189,6 @@ for store in ["sixty", "ww"]:
                 }
             }
         response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
+
 
 
