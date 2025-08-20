@@ -14,8 +14,6 @@ import streamlit as st
 import subprocess
 from PIL import Image
 
-
-IS_STREAMLIT = os.getenv("RUNNING_STREAMLIT", "false").lower() == "true"
 SHEETY_ENDPOINT = "https://api.sheety.co/d6b82e9c05bc37bf12c02605d8f5dd44/groceries/groceries"
 
 sheety = requests.get(SHEETY_ENDPOINT, verify=False)
@@ -75,8 +73,10 @@ else:
     raise Exception(f"Unsupported OS: {system}")
 
 
+# User profile:
 cell_no = "795052593"
 dob = "29/12/1989"
+
 
 for store in ["sixty", "ww"]:
 
@@ -91,11 +91,6 @@ for store in ["sixty", "ww"]:
     # Login so that the address can be used for nearest store and thus stock availability:
     
     WebDriverWait(driver, 10).until(lambda d: d.execute_script("return document.readyState") == "complete")
-
-    # driver.save_screenshot("debug.png")
-    # image = Image.open("debug.png")
-    # st.image(image, caption="Screenshot before Timeout", use_container_width=True)
-    # st.write(driver.page_source)
 
     sign_in = WebDriverWait(driver, 20).until(
         lambda d:   EC.presence_of_element_located((By.XPATH, "//*[contains(@class, 'profile-avatar')]"))(d) and
@@ -112,66 +107,84 @@ for store in ["sixty", "ww"]:
     lets_go = driver.find_element(By.CLASS_NAME, "verify_button-primary__A9Zi8") 
     lets_go.click()    
     
-    # if IS_STREAMLIT:
-    OTP = st.text_input("Please input OTP sent to 0" + cell_no + ":")
+
+    # Initialize session state
+    if "OTP" not in st.session_state:
+        st.session_state.OTP = ""
+
+    # Button to trigger rerun and clear input
+    if st.button("Rerun and Clear"):
+        st.session_state.OTP = ""
+        st.experimental_rerun()
+
+    # Text input using session state
+    st.text_input("Enter OTP:", key="OTP")
+
+    OTP = st.session_state.OTP
+    # OTP = st.text_input("Please input OTP sent to 0" + cell_no + ":")
+    #OTP = input("Please input OTP sent to 0" + cell_no + ":")
+
+    # if not OTP:
+    #     st.stop() # Streamlit is reactive, meaning it automatically reruns your script from top to bottom every time a user interacts with a widget
+
     # else:
-    #     OTP = input("Please input OTP sent to 0" + cell_no + ":")
 
-    if not OTP:
-        st.stop() # Streamlit is reactive, meaning it automatically reruns your script from top to bottom every time a user interacts with a widget
-
-    else:
-
-        OTP_inputs = driver.find_elements(By.CLASS_NAME, "otp-input_otp-input__yxfQO")
-
-        st.write(len(OTP_inputs))
-        st.write(OTP[0])
-
-        OTP_inputs[0].send_keys(OTP[0])
-        OTP_inputs[1].send_keys(OTP[1])
-        OTP_inputs[2].send_keys(OTP[2])
-        OTP_inputs[3].send_keys(OTP[3])
-        OTP_inputs[3].send_keys(Keys.TAB + Keys.ENTER)
-
-        # DOB_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".input.input_input__qgb6Z")))
-        DOB_input = driver.find_element(By.XPATH, '//*[@id="tw-modal"]/div/div/div/div[1]/div/form/div[1]/div/input')
-        DOB_input.send_keys(dob)
-        DOB_input.send_keys(Keys.TAB + Keys.ENTER)
+    driver.save_screenshot("debug.png")
+    image = Image.open("debug.png")
+    st.image(image, caption="Screenshot before Timeout", use_container_width=True)
+    st.write(driver.page_source)
 
 
-        for item in sheety_list[0: len(sheety_list)-1]:
-            search_bar = (  driver.find_element(By.CLASS_NAME, "search_input__kRTmL") if store == "sixty" 
-                            else driver.find_element(By.ID, "cio-autocomplete-0-input"))
-            search_bar.clear()
-            search_bar.send_keys(item["item"])
-            search_bar = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "search_input__kRTmL")) if store == "sixty" else EC.element_to_be_clickable((By.ID, "cio-autocomplete-0-input")))
-            search_bar.send_keys(Keys.ENTER)
+    OTP_inputs = driver.find_elements(By.CLASS_NAME, "otp-input_otp-input__yxfQO")
 
-            sleep(5)
+    st.write(OTP)
+    st.write(len(OTP_inputs))
 
-            topN = item["considerTopNItems"] #precision of search text will affect relevance
-            # wait = WebDriverWait(driver, 10)
-            # topresults = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".product-card_card__DsB3_ a")))
-            topresults = [item.get_attribute("href") for item in 
-                        (driver.find_elements(By.CSS_SELECTOR, ".product-card_card__DsB3_ a") if store == "sixty" 
-                            else driver.find_elements(By.CLASS_NAME, "product--view"))][0:topN]
-            topresults_prices = [float(item.text.split('R')[1]) for item in 
-                                driver.find_elements(By.CLASS_NAME, "price-display_full__ngphI" if store == "sixty" else "price")][0:topN]
-            if len(topresults) > 0:
-                cheapest_price = min(topresults_prices)
-                cheapest_result = topresults[topresults_prices.index(cheapest_price)]
-                update_json = {
-                    "grocery":{
-                        f"{store}CheapestPrice": int(cheapest_price),
-                        f"{store}CheapestLink": cheapest_result,
-                    }
+    OTP_inputs[0].send_keys(OTP[0])
+    OTP_inputs[1].send_keys(OTP[1])
+    OTP_inputs[2].send_keys(OTP[2])
+    OTP_inputs[3].send_keys(OTP[3])
+    OTP_inputs[3].send_keys(Keys.TAB + Keys.ENTER)
+
+    # DOB_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".input.input_input__qgb6Z")))
+    DOB_input = driver.find_element(By.XPATH, '//*[@id="tw-modal"]/div/div/div/div[1]/div/form/div[1]/div/input')
+    DOB_input.send_keys(dob)
+    DOB_input.send_keys(Keys.TAB + Keys.ENTER)
+
+
+    for item in sheety_list[0: len(sheety_list)-1]:
+        search_bar = (  driver.find_element(By.CLASS_NAME, "search_input__kRTmL") if store == "sixty" 
+                        else driver.find_element(By.ID, "cio-autocomplete-0-input"))
+        search_bar.clear()
+        search_bar.send_keys(item["item"])
+        search_bar = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "search_input__kRTmL")) if store == "sixty" else EC.element_to_be_clickable((By.ID, "cio-autocomplete-0-input")))
+        search_bar.send_keys(Keys.ENTER)
+
+        sleep(5)
+
+        topN = item["considerTopNItems"] #precision of search text will affect relevance
+        # wait = WebDriverWait(driver, 10)
+        # topresults = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".product-card_card__DsB3_ a")))
+        topresults = [item.get_attribute("href") for item in 
+                    (driver.find_elements(By.CSS_SELECTOR, ".product-card_card__DsB3_ a") if store == "sixty" 
+                        else driver.find_elements(By.CLASS_NAME, "product--view"))][0:topN]
+        topresults_prices = [float(item.text.split('R')[1]) for item in 
+                            driver.find_elements(By.CLASS_NAME, "price-display_full__ngphI" if store == "sixty" else "price")][0:topN]
+        if len(topresults) > 0:
+            cheapest_price = min(topresults_prices)
+            cheapest_result = topresults[topresults_prices.index(cheapest_price)]
+            update_json = {
+                "grocery":{
+                    f"{store}CheapestPrice": int(cheapest_price),
+                    f"{store}CheapestLink": cheapest_result,
                 }
-            else:
-                update_json = {
-                    "grocery":{
-                        f"{store}CheapestPrice": "None",
-                        f"{store}CheapestLink": "None",
-                    }
+            }
+        else:
+            update_json = {
+                "grocery":{
+                    f"{store}CheapestPrice": "None",
+                    f"{store}CheapestLink": "None",
                 }
-            response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
+            }
+        response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
 
