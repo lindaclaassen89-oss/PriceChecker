@@ -150,7 +150,7 @@ for store in ["sixty", "ww"]:
     OTP_inputs[3].send_keys(Keys.TAB + Keys.ENTER)
 
     # DOB_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".input.input_input__qgb6Z")))
-    DOB_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="tw-modal"]/div/div/div/div[1]/div/form/div[1]/div/input')))
+    DOB_input = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, '//*[@id="tw-modal"]/div/div/div/div[1]/div/form/div[1]/div/input')))
     DOB_input.send_keys(dob)
     DOB_input.send_keys(Keys.TAB + Keys.ENTER)
 
