@@ -108,31 +108,31 @@ for store in ["sixty", "ww"]:
     lets_go.click()    
     
 
-    # Initialize session state
-    if "OTP" not in st.session_state:
-        st.session_state.OTP = ""
+    # # Initialize session state
+    # if "OTP" not in st.session_state:
+    #     st.session_state.OTP = ""
 
-    # Button to trigger rerun and clear input
-    if st.button("Rerun and Clear"):
-        st.session_state.OTP = ""
-        st.experimental_rerun()
+    # # Button to trigger rerun and clear input
+    # if st.button("Rerun and Clear"):
+    #     st.session_state.OTP = ""
+    #     st.experimental_rerun()
 
-    # Text input using session state
-    st.text_input("Enter OTP:", key="OTP")
+    # # Text input using session state
+    # st.text_input("Enter OTP:", key="OTP")
 
-    OTP = st.session_state.OTP
-    # OTP = st.text_input("Please input OTP sent to 0" + cell_no + ":")
-    #OTP = input("Please input OTP sent to 0" + cell_no + ":")
+    # OTP = st.session_state.OTP
+    # # OTP = st.text_input("Please input OTP sent to 0" + cell_no + ":")
+    # #OTP = input("Please input OTP sent to 0" + cell_no + ":")
 
-    # if not OTP:
-    #     st.stop() # Streamlit is reactive, meaning it automatically reruns your script from top to bottom every time a user interacts with a widget
+    # # if not OTP:
+    # #     st.stop() # Streamlit is reactive, meaning it automatically reruns your script from top to bottom every time a user interacts with a widget
 
-    # else:
+    # # else:
 
-    driver.save_screenshot("debug.png")
-    image = Image.open("debug.png")
-    st.image(image, caption="Screenshot before Timeout", use_container_width=True)
-    st.write(driver.page_source)
+    # driver.save_screenshot("debug.png")
+    # image = Image.open("debug.png")
+    # st.image(image, caption="Screenshot before Timeout", use_container_width=True)
+    # st.write(driver.page_source)
 
 
     OTP_inputs = driver.find_elements(By.CLASS_NAME, "otp-input_otp-input__yxfQO")
@@ -187,4 +187,5 @@ for store in ["sixty", "ww"]:
                 }
             }
         response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
+
 
