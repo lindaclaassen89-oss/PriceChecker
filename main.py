@@ -129,10 +129,10 @@ for store in ["sixty", "ww"]:
 
     # # else:
 
-    # driver.save_screenshot("debug.png")
-    # image = Image.open("debug.png")
-    # st.image(image, caption="Screenshot before Timeout", use_container_width=True)
-    # st.write(driver.page_source)
+    driver.save_screenshot("debug.png")
+    image = Image.open("debug.png")
+    st.image(image, caption="Screenshot before Timeout", use_container_width=True)
+    st.write(driver.page_source)
 
 
     OTP_inputs = driver.find_elements(By.CLASS_NAME, "otp-input_otp-input__yxfQO")
@@ -187,5 +187,6 @@ for store in ["sixty", "ww"]:
                 }
             }
         response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
+
 
 
