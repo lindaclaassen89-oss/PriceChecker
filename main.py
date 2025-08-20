@@ -40,7 +40,6 @@ def get_linux_driver():
     chrome_options.add_argument("--remote-debugging-port=9222")
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.224 Safari/537.36")
 
-
     # Optional: ensure /tmp is writable
     if not os.access("/tmp", os.W_OK):
         st.warning("⚠️ /tmp is not writable. Chromium may fail to launch.")
@@ -136,14 +135,13 @@ for store in ["sixty", "ww"]:
 
     driver.save_screenshot("debug.png")
     image = Image.open("debug.png")
-    st.image(image, caption="Screenshot before OTP_inputs", use_container_width=True)
-    st.write(driver.page_source)
 
-
-    OTP_inputs = driver.find_elements(By.CLASS_NAME, "otp-input_otp-input__yxfQO")
+    OTP_inputs = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "otp-input_otp-input__yxfQO")))
 
     st.write(OTP)
     st.write(len(OTP_inputs))
+    st.image(image, caption="Screenshot before OTP_inputs", use_container_width=True)
+    st.write(driver.page_source)
 
     OTP_inputs[0].send_keys(OTP[0])
     OTP_inputs[1].send_keys(OTP[1])
@@ -152,7 +150,7 @@ for store in ["sixty", "ww"]:
     OTP_inputs[3].send_keys(Keys.TAB + Keys.ENTER)
 
     # DOB_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".input.input_input__qgb6Z")))
-    DOB_input = driver.find_element(By.XPATH, '//*[@id="tw-modal"]/div/div/div/div[1]/div/form/div[1]/div/input')
+    DOB_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="tw-modal"]/div/div/div/div[1]/div/form/div[1]/div/input'))
     DOB_input.send_keys(dob)
     DOB_input.send_keys(Keys.TAB + Keys.ENTER)
 
@@ -192,5 +190,4 @@ for store in ["sixty", "ww"]:
                 }
             }
         response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
-
 
