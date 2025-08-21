@@ -15,12 +15,11 @@ import subprocess
 from PIL import Image
 import datetime
 
-st.write("App loaded at:", datetime.datetime.now())
+print("\n\nApp loaded at:", datetime.datetime.now(), "\n\n")
 
 if "init_time" not in st.session_state:
     st.session_state.init_time = datetime.datetime.now()
-
-st.write("Session started at:", st.session_state.init_time)
+    print("\n\nSession started at:", st.session_state.init_time, "\n\n")
 
 SHEETY_ENDPOINT = "https://api.sheety.co/d6b82e9c05bc37bf12c02605d8f5dd44/groceries/groceries"
 
