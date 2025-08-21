@@ -113,7 +113,9 @@ for store in ["sixty", "ww"]:
         lets_go.click()    
 
         # Text input using session state
+        st.write("Creating text_input")
         st.text_input("Please input OTP sent to 0" + cell_no + ":", key="OTP")
+        st.write("Created text_input")
 
     OTP = st.session_state.OTP
 
@@ -179,10 +181,4 @@ for store in ["sixty", "ww"]:
                 }
             }
         response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
-
-
-
-
-
-
 
