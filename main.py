@@ -117,33 +117,33 @@ for store in ["sixty", "ww"]:
         st.text_input("Please input OTP sent to 0" + cell_no + ":", key="OTP")
         st.write("Created text_input")
 
-    OTP = st.session_state.OTP
+        OTP = st.session_state.OTP
+        st.write(OTP)
 
-    #OTP = input("Please input OTP sent to 0" + cell_no + ":")
+        #OTP = input("Please input OTP sent to 0" + cell_no + ":")
 
-    driver.save_screenshot("debug.png")
-    image = Image.open("debug.png")
-    st.image(image, caption="Screenshot before OTP_inputs", use_container_width=True)
-    # st.write(driver.page_source)
+        driver.save_screenshot("debug.png")
+        image = Image.open("debug.png")
+        st.image(image, caption="Screenshot before OTP_inputs", use_container_width=True)
+        # st.write(driver.page_source)
 
-    OTP_inputs = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CLASS_NAME, "otp-input_otp-input__yxfQO")))
+        OTP_inputs = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CLASS_NAME, "otp-input_otp-input__yxfQO")))
 
-    st.write(OTP)
-    st.write(len(OTP_inputs))
+        st.write(len(OTP_inputs))
 
-    OTP_inputs[0].send_keys(OTP[0])
-    OTP_inputs[1].send_keys(OTP[1])
-    OTP_inputs[2].send_keys(OTP[2])
-    OTP_inputs[3].send_keys(OTP[3])
-    OTP_inputs[3].send_keys(Keys.TAB + Keys.ENTER)
+        OTP_inputs[0].send_keys(OTP[0])
+        OTP_inputs[1].send_keys(OTP[1])
+        OTP_inputs[2].send_keys(OTP[2])
+        OTP_inputs[3].send_keys(OTP[3])
+        OTP_inputs[3].send_keys(Keys.TAB + Keys.ENTER)
 
-    # DOB_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".input.input_input__qgb6Z")))
-    DOB_input = WebDriverWait(driver, 20).until(
-            lambda d:   EC.presence_of_element_located((By.XPATH, '//*[@id="tw-modal"]/div/div/div/div[1]/div/form/div[1]/div/input'))(d) and
-                        EC.visibility_of_element_located((By.XPATH,'//*[@id="tw-modal"]/div/div/div/div[1]/div/form/div[1]/div/input'))(d)
-        )
-    DOB_input.send_keys(dob)
-    DOB_input.send_keys(Keys.TAB + Keys.ENTER)
+        # DOB_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".input.input_input__qgb6Z")))
+        DOB_input = WebDriverWait(driver, 20).until(
+                lambda d:   EC.presence_of_element_located((By.XPATH, '//*[@id="tw-modal"]/div/div/div/div[1]/div/form/div[1]/div/input'))(d) and
+                            EC.visibility_of_element_located((By.XPATH,'//*[@id="tw-modal"]/div/div/div/div[1]/div/form/div[1]/div/input'))(d)
+            )
+        DOB_input.send_keys(dob)
+        DOB_input.send_keys(Keys.TAB + Keys.ENTER)
 
 
     for item in sheety_list[0: len(sheety_list)-1]:
