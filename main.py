@@ -91,6 +91,7 @@ for store in ["sixty", "ww"]:
     WebDriverWait(driver, 10).until(lambda d: d.execute_script("return document.readyState") == "complete")
 
     if "OTP" not in st.session_state: # Streamlit is reactive, meaning it automatically reruns your script from top to bottom every time a user interacts with a widget
+        
         driver.save_screenshot("debug.png")
         image = Image.open("debug.png")
         st.image(image, caption="Screenshot before sign_in", use_container_width=True)
@@ -109,7 +110,7 @@ for store in ["sixty", "ww"]:
         phone_no.send_keys(cell_no)
 
         lets_go = driver.find_element(By.CLASS_NAME, "verify_button-primary__A9Zi8") 
-        # lets_go.click()    
+        lets_go.click()    
 
         # Text input using session state
         st.text_input("Please input OTP sent to 0" + cell_no + ":", key="OTP")
@@ -178,6 +179,7 @@ for store in ["sixty", "ww"]:
                 }
             }
         response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
+
 
 
 
