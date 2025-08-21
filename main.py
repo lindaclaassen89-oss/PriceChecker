@@ -117,6 +117,8 @@ for store in ["sixty", "ww"]:
         st.text_input("Please input OTP sent to 0" + cell_no + ":", key="OTP")
         st.write("Created text_input")
 
+        sleep(30) # give the user a chance before rerunning script
+
         OTP = st.session_state.OTP
         st.write(OTP)
 
