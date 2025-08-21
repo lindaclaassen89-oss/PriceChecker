@@ -123,13 +123,13 @@ for store in ["sixty", "ww"]:
 
     driver.save_screenshot("debug.png")
     image = Image.open("debug.png")
+    st.image(image, caption="Screenshot before OTP_inputs", use_container_width=True)
+    # st.write(driver.page_source)
 
     OTP_inputs = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CLASS_NAME, "otp-input_otp-input__yxfQO")))
 
     st.write(OTP)
     st.write(len(OTP_inputs))
-    st.image(image, caption="Screenshot before OTP_inputs", use_container_width=True)
-    # st.write(driver.page_source)
 
     OTP_inputs[0].send_keys(OTP[0])
     OTP_inputs[1].send_keys(OTP[1])
