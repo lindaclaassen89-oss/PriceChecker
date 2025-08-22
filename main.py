@@ -14,8 +14,13 @@ import streamlit as st
 import subprocess
 from PIL import Image
 import datetime
+import logging
 
-print("\n\nApp   loaded   at:", datetime.datetime.now(), "\n\n")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+logger.info("\n\nApp   loaded   at1:", datetime.datetime.now(), "\n\n")
+
+print("\n\nApp   loaded   at2:", datetime.datetime.now(), "\n\n")
 
 if "init_time" not in st.session_state:
     st.session_state.init_time = datetime.datetime.now()
@@ -190,6 +195,7 @@ if "init_time" not in st.session_state:
 #                 }
 #             }
 #         response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
+
 
 
 
