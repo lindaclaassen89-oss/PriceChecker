@@ -135,8 +135,8 @@ for store in ["sixty", "ww"]:
         #OTP = input("Please input OTP sent to 0" + cell_no + ":")
 
         if OTP: # first run it'll be blank
+            logger.info(f"\n\nOTP {OTP} added to st.session_state:{datetime.datetime.now()} Run_nr:{st.session_state.run_nr}\n\n")
             st.session_state.OTP = OTP
-            st.write(OTP)
 
 
     if "OTP" in st.session_state and "driver" in st.session_state:
