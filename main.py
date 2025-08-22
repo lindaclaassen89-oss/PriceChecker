@@ -18,7 +18,7 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-logger.info("\n\nApp   loaded   at1:" + datetime.datetime.now() + "\n\n")
+logger.info(f"\n\nApp   loaded   at1:{datetime.datetime.now()}\n\n")
 
 print("\n\nApp   loaded   at2:", datetime.datetime.now(), "\n\n")
 
@@ -195,6 +195,7 @@ if "init_time" not in st.session_state:
 #                 }
 #             }
 #         response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
+
 
 
 
