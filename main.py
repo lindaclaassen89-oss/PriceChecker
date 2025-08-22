@@ -22,7 +22,12 @@ logger.info(f"\n\nApp   loaded   at:{datetime.datetime.now()}\n\n")
 
 if "init_time" not in st.session_state:
     st.session_state.init_time = datetime.datetime.now()
-    logger.info(f"\n\nSession started   at:{datetime.datetime.now()}\n\n")
+    logger.info(f"\n\nSession started at:{datetime.datetime.now()}\n\n")
+
+if "run_nr" not in st.session_state:
+    st.session_state.run_nr = 1
+else:
+    st.session_state.run_nr += 1
 
 SHEETY_ENDPOINT = "https://api.sheety.co/d6b82e9c05bc37bf12c02605d8f5dd44/groceries/groceries"
 
@@ -73,6 +78,7 @@ dob = "29/12/1989"
 for store in ["sixty", "ww"]:
 
     if "driver" not in st.session_state: # Streamlit is reactive, meaning it automatically reruns your script from top to bottom every time a user interacts with a widget, so only run the OTP navigation and text_input the first time
+        logger.info(f"\n\nDriver not in st.session_state:{datetime.datetime.now()} Run_nr:{st.session_state.run_nr}\n\n")
 
         system = platform.system().lower()
         if system == 'windows':
@@ -121,18 +127,22 @@ for store in ["sixty", "ww"]:
         lets_go = driver.find_element(By.CLASS_NAME, "verify_button-primary__A9Zi8") 
         lets_go.click()    
 
+
+    if "OTP" not in st.session_state:
+        logger.info(f"\n\nOTP not in st.session_state:{datetime.datetime.now()} Run_nr:{st.session_state.run_nr}\n\n")
         # Text input using session state
         OTP = st.text_input("Please input OTP sent to 0" + cell_no + ":", key="OTP")
         #OTP = input("Please input OTP sent to 0" + cell_no + ":")
 
-        sleep(15)
+        if OTP: # first run it'll be blank
+            st.session_state.OTP = OTP
+            st.write(OTP)
 
-        st.session_state.OTP = OTP
 
-        st.write(OTP)
-
-    else:
+    if "OTP" in st.session_state and "driver" in st.session_state:
+        logger.info(f"\n\nBoth driver and OTP in st.session_state:{datetime.datetime.now()} Run_nr:{st.session_state.run_nr}\n\n")
         driver = st.session_state.driver
+        OTP = st.session_state.OTP
 
         driver.save_screenshot("debug.png")
         image = Image.open("debug.png")
