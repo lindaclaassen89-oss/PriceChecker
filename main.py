@@ -71,13 +71,15 @@ def get_linux_driver():
 
 
 # User profile:
-cell_no = "795052593"
-dob = "29/12/1989"
+user_cell_no = "795052593"
+user_dob = "29/12/1989"
+user_email = "paulw.claassen@gmail.com"
+user_pw = "Affies2007"
 
 
 for store in ["sixty", "ww"]:
 
-    logger.info(f"\n\nStore: {store.upper()}\n\n")
+    logger.info(f"\n\nStore: {store.upper()}:\n\n")
 
     if "driverSixty" not in st.session_state or "driverWw" not in st.session_state: # Streamlit is reactive, meaning it automatically reruns your script from top to bottom every time a user interacts with a widget, so only run the OTP navigation and text_input the first time
         logger.info(f"\n\nDriver not in st.session_state:{datetime.datetime.now()} Run_nr:{st.session_state.run_nr}\n\n")
@@ -117,37 +119,50 @@ for store in ["sixty", "ww"]:
         st.image(image1, caption="Screenshot before sign_in", use_container_width=True)
         # st.write(driver.page_source)
 
-        sign_in = WebDriverWait(driver, 20).until(
-            lambda d:   EC.presence_of_element_located((By.XPATH, "//*[contains(@class, 'profile-avatar')]"))(d) and
-                        EC.element_to_be_clickable((By.XPATH, "//*[contains(@class, 'profile-avatar')]"))(d)
-            )
-        sign_in.click()
+        if store == "sixty":
 
-        sign_in_2 = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".button_profile-menu-item___CNYr span")))
-        sign_in_2.click()
+            sign_in = WebDriverWait(driver, 20).until(
+                lambda d:   EC.presence_of_element_located((By.XPATH, "//*[contains(@class, 'profile-avatar')]"))(d) and
+                            EC.element_to_be_clickable((By.XPATH, "//*[contains(@class, 'profile-avatar')]"))(d)
+                )
+            sign_in.click()
 
-        phone_no = driver.find_element(By.CLASS_NAME, "phone-input_phone-input__jHqh5") 
-        phone_no.send_keys(cell_no)
+            sign_in_2 = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".button_profile-menu-item___CNYr span")))
+            sign_in_2.click()
 
-        lets_go = driver.find_element(By.CLASS_NAME, "verify_button-primary__A9Zi8") 
-        lets_go.click()    
+            phone_no = driver.find_element(By.CLASS_NAME, "phone-input_phone-input__jHqh5") 
+            phone_no.send_keys(user_cell_no)
+
+            lets_go = driver.find_element(By.CLASS_NAME, "verify_button-primary__A9Zi8") 
+            lets_go.click() 
+
+        else:
+            sign_in = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".signInLabelLogin span")))
+            sign_in.click()
+
+            email = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "fldEmailAddressSml")))
+            email.send_keys(user_email)
+
+            email = driver.find_element(By.ID, "fldPasswordSml")
+            email.send_keys(user_pw)
+
+            sign_in_2 = driver.find_element(By.ID, "login")
+            sign_in_2.click()
 
 
-    if "otpSixty" not in st.session_state or "otpWw" not in st.session_state:
+    if store == "sixty" and "otpSixty" not in st.session_state: # WW doesn't send OTP
         
-        logger.info(f"\n\nOTP not in st.session_state:{datetime.datetime.now()} Run_nr:{st.session_state.run_nr}\n\n")
+        logger.info(f"\n\nSixty OTP not in st.session_state:{datetime.datetime.now()} Run_nr:{st.session_state.run_nr}\n\n")
         
-        otp = st.text_input("Please input OTP sent to 0" + cell_no + ":", key="otp"+store+"PossiblyBlank")
+        otp = st.text_input("Please input OTP sent to 0" + user_cell_no + ":")
         #OTP = input("Please input OTP sent to 0" + cell_no + ":")
 
         if otp: # first run it'll be blank
-            if store == "sixty":
-                st.session_state.otpSixty = otp
-            else: st.session_state.otpWw = otp
-            logger.info(f"\n\nOTP_{store} {otp} added to st.session_state:{datetime.datetime.now()} Run_nr:{st.session_state.run_nr}\n\n")
+            st.session_state.otpSixty = otp
+            logger.info(f"\n\nOTP {otp} added to st.session_state:{datetime.datetime.now()} Run_nr:{st.session_state.run_nr}\n\n")
 
 
-    if "otpSixty" in st.session_state and "otpWw" in st.session_state and "driverSixty" in st.session_state and "driverWw" in st.session_state:
+    if "otpSixty" in st.session_state and "driverSixty" in st.session_state and "driverWw" in st.session_state:
         
         logger.info(f"\n\nBoth driver and OTP in st.session_state:{datetime.datetime.now()} Run_nr:{st.session_state.run_nr}\n\n")
         
@@ -156,30 +171,30 @@ for store in ["sixty", "ww"]:
             otp = st.session_state.otpSixty
         else: 
             driver = st.session_state.driverWw
-            otp = st.session_state.otpWw
     
         driver.save_screenshot("debug2.png")
         image2 = Image.open("debug2.png")
         st.image(image2, caption="Screenshot before OTP_inputs", use_container_width=True)
         # st.write(driver.page_source)
 
-        OTP_inputs = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CLASS_NAME, "otp-input_otp-input__yxfQO")))
+        if store == "sixty":
+            OTP_inputs = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CLASS_NAME, "otp-input_otp-input__yxfQO")))
 
-        st.write(len(OTP_inputs))
+            st.write(len(OTP_inputs))
 
-        OTP_inputs[0].send_keys(otp[0])
-        OTP_inputs[1].send_keys(otp[1])
-        OTP_inputs[2].send_keys(otp[2])
-        OTP_inputs[3].send_keys(otp[3])
-        OTP_inputs[3].send_keys(Keys.TAB + Keys.ENTER)
+            OTP_inputs[0].send_keys(otp[0])
+            OTP_inputs[1].send_keys(otp[1])
+            OTP_inputs[2].send_keys(otp[2])
+            OTP_inputs[3].send_keys(otp[3])
+            OTP_inputs[3].send_keys(Keys.TAB + Keys.ENTER)
 
-        # DOB_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".input.input_input__qgb6Z")))
-        DOB_input = WebDriverWait(driver, 20).until(
-                lambda d:   EC.presence_of_element_located((By.XPATH, '//*[@id="tw-modal"]/div/div/div/div[1]/div/form/div[1]/div/input'))(d) and
-                            EC.visibility_of_element_located((By.XPATH,'//*[@id="tw-modal"]/div/div/div/div[1]/div/form/div[1]/div/input'))(d)
-            )
-        DOB_input.send_keys(dob)
-        DOB_input.send_keys(Keys.TAB + Keys.ENTER)
+            # DOB_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".input.input_input__qgb6Z")))
+            DOB_input = WebDriverWait(driver, 20).until(
+                    lambda d:   EC.presence_of_element_located((By.XPATH, '//*[@id="tw-modal"]/div/div/div/div[1]/div/form/div[1]/div/input'))(d) and
+                                EC.visibility_of_element_located((By.XPATH,'//*[@id="tw-modal"]/div/div/div/div[1]/div/form/div[1]/div/input'))(d)
+                )
+            DOB_input.send_keys(user_dob)
+            DOB_input.send_keys(Keys.TAB + Keys.ENTER)
 
 
         for item in sheety_list[0: len(sheety_list)-1]:
@@ -219,6 +234,4 @@ for store in ["sixty", "ww"]:
                     }
                 }
             response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
-
-
 
