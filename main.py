@@ -114,9 +114,13 @@ for store in ["sixty", "ww"]:
         
         WebDriverWait(driver, 10).until(lambda d: d.execute_script("return document.readyState") == "complete")
 
-        driver.save_screenshot("debug1.png")
-        image1 = Image.open("debug1.png")
-        st.image(image1, caption="Screenshot before sign_in", use_container_width=True)
+        driver.save_screenshot("debug1"+store+".png")
+        if store == "sixty":
+            image1sixty = Image.open("debug1"+store+".png")
+            st.image(image1sixty, caption="Screenshot before sign_in", use_container_width=True)
+        else:
+            image1Ww = Image.open("debug1"+store+".png")
+            st.image(image1Ww, caption="Screenshot before sign_in", use_container_width=True)
         # st.write(driver.page_source)
 
         if store == "sixty":
@@ -140,7 +144,7 @@ for store in ["sixty", "ww"]:
             sign_in = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".signInLabelLogin span")))
             sign_in.click()
 
-            email = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "fldEmailAddressSml")))
+            email = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "fldEmailAddressSml")))
             email.send_keys(user_email)
 
             email = driver.find_element(By.ID, "fldPasswordSml")
@@ -169,13 +173,14 @@ for store in ["sixty", "ww"]:
         if store == "sixty":
             driver = st.session_state.driverSixty
             otp = st.session_state.otpSixty
+            
+            driver.save_screenshot("debug2.png")
+            image2 = Image.open("debug2.png")
+            st.image(image2, caption="Screenshot before OTP_inputs", use_container_width=True)
+            # st.write(driver.page_source)
         else: 
             driver = st.session_state.driverWw
     
-        driver.save_screenshot("debug2.png")
-        image2 = Image.open("debug2.png")
-        st.image(image2, caption="Screenshot before OTP_inputs", use_container_width=True)
-        # st.write(driver.page_source)
 
         if store == "sixty":
             OTP_inputs = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CLASS_NAME, "otp-input_otp-input__yxfQO")))
