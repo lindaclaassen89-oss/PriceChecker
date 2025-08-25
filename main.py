@@ -137,7 +137,7 @@ for store in ["sixty", "ww"]:
         
         logger.info(f"\n\nOTP not in st.session_state:{datetime.datetime.now()} Run_nr:{st.session_state.run_nr}\n\n")
         
-        otp = st.text_input("Please input OTP sent to 0" + cell_no + ":", key="otp")
+        otp = st.text_input("Please input OTP sent to 0" + cell_no + ":")
         #OTP = input("Please input OTP sent to 0" + cell_no + ":")
 
         if otp: # first run it'll be blank
@@ -219,4 +219,5 @@ for store in ["sixty", "ww"]:
                     }
                 }
             response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
+
 
