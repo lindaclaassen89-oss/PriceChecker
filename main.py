@@ -30,7 +30,7 @@ if "run_nr" not in st.session_state:
     st.session_state.run_nr = 1
 else:
     st.session_state.run_nr += 1
-logger.info(f"\n\nSession run_nr:{st.session_state.run_nr}\n\n")
+logger.info(f"\n\nSession run_nr: {st.session_state.run_nr}\n\n")
 
 sheety = requests.get(SHEETY_ENDPOINT, verify=False)
 sheety_list = sheety.json()["groceries"]
@@ -98,7 +98,7 @@ if "store" not in st.session_state: # for loop through stores doesn't work, beca
     st.session_state.store = "sixty"
 # the else is set after the whole Sixty run (line 240-ish)
 store = st.session_state.store
-logger.info(f"\n\nStore: {store.upper()}:\n\n")
+logger.info(f"{store.upper()} {store.upper()} {store.upper()} {store.upper()} {store.upper()} {store.upper()} {store.upper()}")
 
 
 if store == "sixty" and "driverSixty" not in st.session_state: # Streamlit is reactive, meaning it automatically reruns your script from top to bottom every time a user interacts with a widget, so only run the OTP navigation and text_input the first time
@@ -242,7 +242,7 @@ if store == "sixty" and "otp" in st.session_state and "driverSixty" in st.sessio
 
 
 if st.session_state.store == "ww": # should only run once after all of the above
-    logger.info(f"\n\nStore: {store.upper()}:\n\n")
+    logger.info(f"{store.upper()} {store.upper()} {store.upper()} {store.upper()} {store.upper()} {store.upper()} {store.upper()}")
     logger.info(f"\n\nand thus Driver not in st.session_state:{datetime.datetime.now()} Run_nr:{st.session_state.run_nr}\n\n")
 
     driver = get_driver_for_os()
