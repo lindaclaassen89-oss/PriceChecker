@@ -20,11 +20,11 @@ SHEETY_ENDPOINT = "https://api.sheety.co/d6b82e9c05bc37bf12c02605d8f5dd44/grocer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-logger.info(f"\n\nApp   loaded    at:{datetime.datetime.now()}\n\n")
+logger.info(f"\n\nApp   loaded    at: {datetime.datetime.now()}\n\n")
 
 if "init_time" not in st.session_state:
     st.session_state.init_time = datetime.datetime.now()
-logger.info(f"\n\nSession started at:{datetime.datetime.now()}\n\n")
+logger.info(f"\n\nSession started at: {datetime.datetime.now()}\n\n")
 
 if "run_nr" not in st.session_state:
     st.session_state.run_nr = 1
@@ -69,6 +69,7 @@ def get_linux_driver():
         st.error("🚨 Failed to launch Chromium")
         st.exception(e)
         return None
+    
 
 def get_driver_for_os():
     system = platform.system().lower()
@@ -102,17 +103,18 @@ logger.info(f"{store.upper()} {store.upper()} {store.upper()} {store.upper()} {s
 
 
 if store == "sixty" and "driverSixty" not in st.session_state: # Streamlit is reactive, meaning it automatically reruns your script from top to bottom every time a user interacts with a widget, so only run the OTP navigation and text_input the first time
-    logger.info(f"\n\nDriver not in st.session_state:{datetime.datetime.now()} Run_nr:{st.session_state.run_nr}\n\n")
+    logger.info(f"\n\nDriver not in st.session_state: {datetime.datetime.now()} Run_nr: {st.session_state.run_nr}\n\n")
 
     driver = get_driver_for_os()
     st.session_state.driverSixty = driver
     driver.get("https://www.checkers.co.za/") 
+    wait = WebDriverWait(driver, 10)
 
     # JS so that headless mode can work
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     sleep(2) # give JS time to react
     
-    WebDriverWait(driver, 10).until(lambda d: d.execute_script("return document.readyState") == "complete")
+    wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
 
     driver.save_screenshot("debug1"+store+".png")
     if store == "sixty":
@@ -125,13 +127,13 @@ if store == "sixty" and "driverSixty" not in st.session_state: # Streamlit is re
 
     # Login so that the address can be used for nearest store and thus stock availability:
 
-    sign_in = WebDriverWait(driver, 20).until(
+    sign_in = wait.until(
         lambda d:   EC.presence_of_element_located((By.XPATH, "//*[contains(@class, 'profile-avatar')]"))(d) and
                     EC.element_to_be_clickable((By.XPATH, "//*[contains(@class, 'profile-avatar')]"))(d)
         )
     sign_in.click()
 
-    sign_in_2 = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".button_profile-menu-item___CNYr span")))
+    sign_in_2 = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".button_profile-menu-item___CNYr span")))
     sign_in_2.click()
 
     phone_no = driver.find_element(By.CLASS_NAME, "phone-input_phone-input__jHqh5") 
@@ -140,49 +142,31 @@ if store == "sixty" and "driverSixty" not in st.session_state: # Streamlit is re
     lets_go = driver.find_element(By.CLASS_NAME, "verify_button-primary__A9Zi8") 
     lets_go.click() 
 
-    # else:
-    #     sign_in = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".signInLabelLogin span")))
-    #     sign_in.click()
-
-    #     email = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".email-address input")))
-    #     email.send_keys(user_email)
-
-    #     email = driver.find_element(By.ID, "fldPasswordSml")
-    #     email.send_keys(user_pw)
-
-    #     sign_in_2 = driver.find_element(By.ID, "login")
-    #     sign_in_2.click()
-
 
 if store == "sixty" and "otp" not in st.session_state: # WW doesn't require OTP
     
-    logger.info(f"\n\nOtp not in st.session_state:{datetime.datetime.now()} Run_nr:{st.session_state.run_nr}\n\n")
+    logger.info(f"\n\nOtp not in st.session_state: {datetime.datetime.now()} Run_nr: {st.session_state.run_nr}\n\n")
     
-    otp = st.text_input("Please input OTP sent to 0" + user_cell_no + ":")
-    #OTP = input("Please input OTP sent to 0" + cell_no + ":")
+    #otp = st.text_input("Please input OTP sent to 0" + user_cell_no + ":")
+    otp = input("Please input OTP sent to 0" + user_cell_no + ":")
 
     if otp: # first run it'll be blank
         st.session_state.otp = otp # manually rather than using "key" in text_input so that we can control the flow
-        logger.info(f"\n\nOTP {otp} added to st.session_state:{datetime.datetime.now()} Run_nr:{st.session_state.run_nr}\n\n")
+        logger.info(f"\n\nOTP {otp} added to st.session_state: {datetime.datetime.now()} Run_nr: {st.session_state.run_nr}\n\n")
 
 
-def search_items(store):
+def search_items(store, driver):
     for item in sheety_list[0: len(sheety_list)-1]:
-        search_bar = (  driver.find_element(By.CLASS_NAME, "search_input__kRTmL") if store == "sixty" 
-                        else driver.find_element(By.ID, "cio-autocomplete-0-input"))
+        search_bar = (wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "search_input__kRTmL"))) if store == "sixty" 
+                        else wait.until(EC.visibility_of_element_located((By.ID, "cio-autocomplete-0-input"))))
         search_bar.clear()
         search_bar.send_keys(item["item"])
-        search_bar = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "search_input__kRTmL")) if store == "sixty" else EC.element_to_be_clickable((By.ID, "cio-autocomplete-0-input")))
         search_bar.send_keys(Keys.ENTER)
 
-        sleep(5)
-
         topN = item["considerTopNItems"] #precision of search text will affect relevance
-        # wait = WebDriverWait(driver, 10)
-        # topresults = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".product-card_card__DsB3_ a")))
         topresults = [item.get_attribute("href") for item in 
-                    (driver.find_elements(By.CSS_SELECTOR, ".product-card_card__DsB3_ a") if store == "sixty" 
-                        else driver.find_elements(By.CLASS_NAME, "product--view"))][0:topN]
+                        (wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".product-card_card__DsB3_ a"))) if store == "sixty" 
+                            else wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "product--view"))))][0:topN]
         topresults_prices = [float(item.text.split('R')[1]) for item in 
                             driver.find_elements(By.CLASS_NAME, "price-display_full__ngphI" if store == "sixty" else "price")][0:topN]
         if len(topresults) > 0:
@@ -192,7 +176,7 @@ def search_items(store):
                 "grocery":{
                     f"{store}CheapestPrice": int(cheapest_price),
                     f"{store}CheapestLink": cheapest_result,
-                    "datetimeUpdated": datetime.datetime.now()
+                    "datetimeUpdated": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
                 }
             }
         else:
@@ -200,7 +184,7 @@ def search_items(store):
                 "grocery":{
                     f"{store}CheapestPrice": "None",
                     f"{store}CheapestLink": "None",
-                    "datetimeUpdated": datetime.datetime.now()
+                    "datetimeUpdated": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
                 }
             }
         response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
@@ -208,7 +192,7 @@ def search_items(store):
 
 if store == "sixty" and "otp" in st.session_state and "driverSixty" in st.session_state:
     
-    logger.info(f"\n\nBoth driver and OTP in st.session_state:{datetime.datetime.now()} Run_nr:{st.session_state.run_nr}\n\n")
+    logger.info(f"\n\nBoth driver and OTP in st.session_state: {datetime.datetime.now()} Run_nr: {st.session_state.run_nr}\n\n")
     
     driver = st.session_state.driverSixty
     otp = st.session_state.otp
@@ -218,7 +202,7 @@ if store == "sixty" and "otp" in st.session_state and "driverSixty" in st.sessio
     st.image(image2, caption="Screenshot before OTP_inputs", use_container_width=True)
     # st.write(driver.page_source)
 
-    OTP_inputs = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CLASS_NAME, "otp-input_otp-input__yxfQO")))
+    OTP_inputs = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "otp-input_otp-input__yxfQO")))
 
     st.write(len(OTP_inputs))
 
@@ -228,32 +212,33 @@ if store == "sixty" and "otp" in st.session_state and "driverSixty" in st.sessio
     OTP_inputs[3].send_keys(otp[3])
     OTP_inputs[3].send_keys(Keys.TAB + Keys.ENTER)
 
-    # DOB_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".input.input_input__qgb6Z")))
-    DOB_input = WebDriverWait(driver, 20).until(
+    # DOB_input = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".input.input_input__qgb6Z")))
+    DOB_input = wait.until(
             lambda d:   EC.presence_of_element_located((By.XPATH, '//*[@id="tw-modal"]/div/div/div/div[1]/div/form/div[1]/div/input'))(d) and
                         EC.visibility_of_element_located((By.XPATH,'//*[@id="tw-modal"]/div/div/div/div[1]/div/form/div[1]/div/input'))(d)
         )
     DOB_input.send_keys(user_dob)
     DOB_input.send_keys(Keys.TAB + Keys.ENTER)
 
-    search_items(store)
+    search_items(store, driver)
 
     st.session_state.store = "ww"
 
 
 if st.session_state.store == "ww": # should only run once after all of the above
     logger.info(f"{store.upper()} {store.upper()} {store.upper()} {store.upper()} {store.upper()} {store.upper()} {store.upper()}")
-    logger.info(f"\n\nand thus Driver not in st.session_state:{datetime.datetime.now()} Run_nr:{st.session_state.run_nr}\n\n")
+    logger.info(f"\n\nand thus Driver not in st.session_state: {datetime.datetime.now()} Run_nr: {st.session_state.run_nr}\n\n")
 
     driver = get_driver_for_os()
     # st.session_state.driver = driver
     driver.get("https://www.woolworths.co.za/dept/Food/_/N-1z13sk5")
+    wait = WebDriverWait(driver, 10)
 
     # JS so that headless mode can work
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     sleep(2) # give JS time to react
     
-    WebDriverWait(driver, 10).until(lambda d: d.execute_script("return document.readyState") == "complete")
+    wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
 
     driver.save_screenshot("debug1"+store+".png")
     if store == "sixty":
@@ -266,10 +251,10 @@ if st.session_state.store == "ww": # should only run once after all of the above
 
     # Login so that the address can be used for nearest store and thus stock availability:
 
-    sign_in = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".signInLabelLogin span")))
+    sign_in = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".signInLabelLogin span")))
     sign_in.click()
 
-    email = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".email-address input")))
+    email = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".email-address input")))
     email.send_keys(user_email)
 
     email = driver.find_element(By.ID, "fldPasswordSml")
@@ -278,7 +263,4 @@ if st.session_state.store == "ww": # should only run once after all of the above
     sign_in_2 = driver.find_element(By.ID, "login")
     sign_in_2.click()
 
-    search_items(store)
-
-
-
+    search_items(store, driver)
