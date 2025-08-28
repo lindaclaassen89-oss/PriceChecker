@@ -147,23 +147,28 @@ if store == "sixty" and "otp" not in st.session_state: # WW doesn't require OTP
     
     logger.info(f"\n\nOtp not in st.session_state: {datetime.datetime.now()} Run_nr: {st.session_state.run_nr}\n\n")
     
-    #otp = st.text_input("Please input OTP sent to 0" + user_cell_no + ":")
-    otp = input("Please input OTP sent to 0" + user_cell_no + ":")
+    otp = st.text_input("Please input OTP sent to 0" + user_cell_no + ":")
+    # otp = input("Please input OTP sent to 0" + user_cell_no + ":")
 
     if otp: # first run it'll be blank
         st.session_state.otp = otp # manually rather than using "key" in text_input so that we can control the flow
         logger.info(f"\n\nOTP {otp} added to st.session_state: {datetime.datetime.now()} Run_nr: {st.session_state.run_nr}\n\n")
 
 
-def search_items(store, driver):
+def search_items(store, driver, wait):
+    # if store == "sixty": 
+        # modal = driver.find_element(By.ID, "tw-modal")
+        # wait.until(EC.staleness_of(modal))
+    search_bar = (wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input.search_input__kRTmL"))) if store == "sixty" 
+                    else wait.until(EC.element_to_be_clickable((By.ID, "cio-autocomplete-0-input"))))
+    sleep(5) # prevents send_keys's ElementNotInteractableException - above modal staleness only works for first iteration and still not always
     for item in sheety_list[0: len(sheety_list)-1]:
-        search_bar = (wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "search_input__kRTmL"))) if store == "sixty" 
-                        else wait.until(EC.visibility_of_element_located((By.ID, "cio-autocomplete-0-input"))))
         search_bar.clear()
         search_bar.send_keys(item["item"])
         search_bar.send_keys(Keys.ENTER)
 
         topN = item["considerTopNItems"] #precision of search text will affect relevance
+        sleep(3) # prevents below line's StaleElementReferenceException
         topresults = [item.get_attribute("href") for item in 
                         (wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".product-card_card__DsB3_ a"))) if store == "sixty" 
                             else wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "product--view"))))][0:topN]
@@ -220,9 +225,10 @@ if store == "sixty" and "otp" in st.session_state and "driverSixty" in st.sessio
     DOB_input.send_keys(user_dob)
     DOB_input.send_keys(Keys.TAB + Keys.ENTER)
 
-    search_items(store, driver)
+    search_items(store, driver, wait)
 
     st.session_state.store = "ww"
+    store = "ww"
 
 
 if st.session_state.store == "ww": # should only run once after all of the above
@@ -263,4 +269,4 @@ if st.session_state.store == "ww": # should only run once after all of the above
     sign_in_2 = driver.find_element(By.ID, "login")
     sign_in_2.click()
 
-    search_items(store, driver)
+    search_items(store, driver, wait)
