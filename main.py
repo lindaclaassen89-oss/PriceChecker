@@ -201,6 +201,7 @@ if store == "sixty" and "otp" in st.session_state and "driverSixty" in st.sessio
     
     driver = st.session_state.driverSixty
     otp = st.session_state.otp
+    wait = WebDriverWait(driver, 10)
 
     driver.save_screenshot("debug2.png")
     image2 = Image.open("debug2.png")
