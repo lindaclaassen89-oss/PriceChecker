@@ -7,24 +7,26 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 from time import sleep
 import os
 import platform
 import streamlit as st
 import subprocess
 from PIL import Image
-import datetime
+from datetime import datetime, timezone
+import zoneinfo
 import logging
 
 SHEETY_ENDPOINT = "https://api.sheety.co/d6b82e9c05bc37bf12c02605d8f5dd44/groceries/groceries"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-logger.info(f"\n\nApp   loaded    at: {datetime.datetime.now()}\n\n")
+logger.info(f"\n\nApp   loaded    at: {datetime.now()}\n\n")
 
 if "init_time" not in st.session_state:
-    st.session_state.init_time = datetime.datetime.now()
-logger.info(f"\n\nSession started at: {datetime.datetime.now()}\n\n")
+    st.session_state.init_time = datetime.now()
+logger.info(f"\n\nSession started at: {datetime.now()}\n\n")
 
 if "run_nr" not in st.session_state:
     st.session_state.run_nr = 1
@@ -103,7 +105,7 @@ logger.info(f"{store.upper()} {store.upper()} {store.upper()} {store.upper()} {s
 
 
 if store == "sixty" and "driverSixty" not in st.session_state: # Streamlit is reactive, meaning it automatically reruns your script from top to bottom every time a user interacts with a widget, so only run the OTP navigation and text_input the first time
-    logger.info(f"\n\nDriver not in st.session_state: {datetime.datetime.now()} Run_nr: {st.session_state.run_nr}\n\n")
+    logger.info(f"\n\nDriver not in st.session_state: {datetime.now()} Run_nr: {st.session_state.run_nr}\n\n")
 
     driver = get_driver_for_os()
     st.session_state.driverSixty = driver
@@ -145,14 +147,14 @@ if store == "sixty" and "driverSixty" not in st.session_state: # Streamlit is re
 
 if store == "sixty" and "otp" not in st.session_state: # WW doesn't require OTP
     
-    logger.info(f"\n\nOtp not in st.session_state: {datetime.datetime.now()} Run_nr: {st.session_state.run_nr}\n\n")
+    logger.info(f"\n\nOtp not in st.session_state: {datetime.now()} Run_nr: {st.session_state.run_nr}\n\n")
     
-    otp = st.text_input("Please input OTP sent to 0" + user_cell_no + ":")
-    # otp = input("Please input OTP sent to 0" + user_cell_no + ":")
+    # otp = st.text_input("Please input OTP sent to 0" + user_cell_no + ":")
+    otp = input("Please input OTP sent to 0" + user_cell_no + ":")
 
     if otp: # first run it'll be blank
         st.session_state.otp = otp # manually rather than using "key" in text_input so that we can control the flow
-        logger.info(f"\n\nOTP {otp} added to st.session_state: {datetime.datetime.now()} Run_nr: {st.session_state.run_nr}\n\n")
+        logger.info(f"\n\nOTP {otp} added to st.session_state: {datetime.now()} Run_nr: {st.session_state.run_nr}\n\n")
 
 
 def search_items(store, driver, wait):
@@ -162,18 +164,40 @@ def search_items(store, driver, wait):
     search_bar = (wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input.search_input__kRTmL"))) if store == "sixty" 
                     else wait.until(EC.element_to_be_clickable((By.ID, "cio-autocomplete-0-input"))))
     sleep(5) # prevents send_keys's ElementNotInteractableException - above modal staleness only works for first iteration and still not always
+    
     for item in sheety_list[0: len(sheety_list)-1]:
+        if item["item"] == "": # a.k.a. a while loop until blank or "Cart Totals"
+            continue
+
+        item_description = item["item"]
+
+        # remove the space before the unit
+        if store == "sixty":
+            for unit in [" g ", " ml ", " kg ", " l "]:
+                if unit in item_description:
+                    index = item_description.find(unit)
+                    item_description = item_description[:index] + item_description[index+1:1000]
+
         search_bar.clear()
-        search_bar.send_keys(item["item"])
+        search_bar.send_keys(item_description)
         search_bar.send_keys(Keys.ENTER)
 
         topN = item["considerTopNItems"] #precision of search text will affect relevance
-        sleep(3) # prevents below line's StaleElementReferenceException
-        topresults = [item.get_attribute("href") for item in 
-                        (wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".product-card_card__DsB3_ a"))) if store == "sixty" 
-                            else wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "product--view"))))][0:topN]
-        topresults_prices = [float(item.text.split('R')[1]) for item in 
-                            driver.find_elements(By.CLASS_NAME, "price-display_full__ngphI" if store == "sixty" else "price")][0:topN]
+        sleep(3) # prevents below line's StaleElementReferenceException, but still need presence_of_all_elements_located otherwise often empty
+        try: 
+            topresults = [item.get_attribute("href") for item in 
+                            (wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".product-card_card__DsB3_ a"))) if store == "sixty" 
+                                else wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "product--view"))))][0:topN]
+            topresults_prices = [float(item.text.split('R')[1]) for item in 
+                                driver.find_elements(By.CLASS_NAME, "price-display_full__ngphI" if store == "sixty" else "price")][0:topN]
+        except TimeoutException:
+            if driver.find_element(By.CLASS_NAME, "errorUnavailHeader"):
+                topresults = []
+                topresults_prices = []
+            else:
+                raise TimeoutException("Timed out after 10 sec and no errorUnavailHeader")
+            
+        now_local = datetime.now(timezone.utc).astimezone(zoneinfo.ZoneInfo("Africa/Johannesburg")).strftime("%Y-%m-%d %H:%M")
         if len(topresults) > 0:
             cheapest_price = min(topresults_prices)
             cheapest_result = topresults[topresults_prices.index(cheapest_price)]
@@ -181,7 +205,7 @@ def search_items(store, driver, wait):
                 "grocery":{
                     f"{store}CheapestPrice": int(cheapest_price),
                     f"{store}CheapestLink": cheapest_result,
-                    "datetimeUpdated": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+                    "datetimeUpdated": now_local,
                 }
             }
         else:
@@ -189,15 +213,21 @@ def search_items(store, driver, wait):
                 "grocery":{
                     f"{store}CheapestPrice": "None",
                     f"{store}CheapestLink": "None",
-                    "datetimeUpdated": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+                    "datetimeUpdated": now_local,
                 }
             }
+        if store == "sixty": # don't overwrite with WW description
+            update_json["sixtyItemWithoutUnitSpace"] = item_description
+            
         response = requests.put(f"{SHEETY_ENDPOINT}/{item["id"]}", json=update_json, verify=False)
+
+        if response.status_code != 200:
+            raise Exception(f"PUT request failed with status code {response.status_code}: {response.text}")
 
 
 if store == "sixty" and "otp" in st.session_state and "driverSixty" in st.session_state:
     
-    logger.info(f"\n\nBoth driver and OTP in st.session_state: {datetime.datetime.now()} Run_nr: {st.session_state.run_nr}\n\n")
+    logger.info(f"\n\nBoth driver and OTP in st.session_state: {datetime.now()} Run_nr: {st.session_state.run_nr}\n\n")
     
     driver = st.session_state.driverSixty
     otp = st.session_state.otp
@@ -234,7 +264,7 @@ if store == "sixty" and "otp" in st.session_state and "driverSixty" in st.sessio
 
 if st.session_state.store == "ww": # should only run once after all of the above
     logger.info(f"{store.upper()} {store.upper()} {store.upper()} {store.upper()} {store.upper()} {store.upper()} {store.upper()}")
-    logger.info(f"\n\nand thus Driver not in st.session_state: {datetime.datetime.now()} Run_nr: {st.session_state.run_nr}\n\n")
+    logger.info(f"\n\nand thus Driver not in st.session_state: {datetime.now()} Run_nr: {st.session_state.run_nr}\n\n")
 
     driver = get_driver_for_os()
     # st.session_state.driver = driver

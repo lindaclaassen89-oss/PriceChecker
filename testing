@@ -1,0 +1,10 @@
+item_description = "Feta cheese 400 g "
+
+for unit in [" g ", " ml ", " kg ", " l "]:
+    if unit in item_description:
+        index = item_description.find(unit)
+        item_description1 = item_description[:index]
+        item2 = item_description[index+1:1000]
+        print(item_description1)
+        print(item2)
+        print(item_description1 + item2)
