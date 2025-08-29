@@ -149,8 +149,8 @@ if store == "sixty" and "otp" not in st.session_state: # WW doesn't require OTP
     
     logger.info(f"\n\nOtp not in st.session_state: {datetime.now()} Run_nr: {st.session_state.run_nr}\n\n")
     
-    # otp = st.text_input("Please input OTP sent to 0" + user_cell_no + ":")
-    otp = input("Please input OTP sent to 0" + user_cell_no + ":")
+    otp = st.text_input("Please input OTP sent to 0" + user_cell_no + ":")
+    # otp = input("Please input OTP sent to 0" + user_cell_no + ":")
 
     if otp: # first run it'll be blank
         st.session_state.otp = otp # manually rather than using "key" in text_input so that we can control the flow
