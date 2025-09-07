@@ -22,17 +22,17 @@ SHEETY_ENDPOINT = "https://api.sheety.co/d6b82e9c05bc37bf12c02605d8f5dd44/grocer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-logger.info(f"\n\nApp   loaded    at: {datetime.now()}\n\n")
+logger.info(f"App   loaded    at: {datetime.now()}")
 
 if "init_time" not in st.session_state:
     st.session_state.init_time = datetime.now()
-logger.info(f"\n\nSession started at: {st.session_state.init_time}\n\n")
+logger.info(f"Session started at: {st.session_state.init_time}")
 
 if "run_nr" not in st.session_state:
     st.session_state.run_nr = 1
 else:
     st.session_state.run_nr += 1
-logger.info(f"\n\nSession run_nr: {st.session_state.run_nr}\n\n")
+logger.info(f"Session run_nr: {st.session_state.run_nr}")
 
 
 query_params = st.query_params
