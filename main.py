@@ -35,7 +35,7 @@ else:
 logger.info(f"\n\nSession run_nr: {st.session_state.run_nr}\n\n")
 
 
-query_params = st.query_params()
+query_params = st.query_params
 
 if "human" not in query_params:
     logger.info("🔍 Possibly a health check or bot.")
