@@ -20,8 +20,11 @@ import logging
 
 SHEETY_ENDPOINT = "https://api.sheety.co/d6b82e9c05bc37bf12c02605d8f5dd44/groceries/groceries"
 
+debugging = False
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 logger.info(f"App   loaded    at: {datetime.now()}")
 
 if "init_time" not in st.session_state:
@@ -37,7 +40,7 @@ logger.info(f"Session run_nr: {st.session_state.run_nr}")
 
 query_params = st.query_params
 
-if "human" not in query_params:
+if "human" not in query_params and debugging == False:
     logger.info("🔍 Possibly a health check or bot.")
 else:
     logger.info("👋 Hello, human user!")
@@ -157,10 +160,12 @@ else:
         
         logger.info(f"\n\nOtp not in st.session_state: {datetime.now()} Run_nr: {st.session_state.run_nr}\n\n")
         
-        otp = st.text_input("Please input OTP sent to 0" + user_cell_no + ":")
-        # otp = input("Please input OTP sent to 0" + user_cell_no + ":")
+        if debugging == True:
+            otp = input("Please input OTP sent to 0" + user_cell_no + ":")
+        else:
+            otp = st.text_input("Please input OTP sent to 0" + user_cell_no + ":")
 
-        if otp: # first run it'll be blank
+        if otp: # first run on Streamlit it'll be blank
             st.session_state.otp = otp # manually rather than using "key" in text_input so that we can control the flow
             logger.info(f"\n\nOTP {otp} added to st.session_state: {datetime.now()} Run_nr: {st.session_state.run_nr}\n\n")
 
@@ -206,7 +211,7 @@ else:
                     raise TimeoutException("Timed out after 10 sec and no errorUnavailHeader")
                 
             now_local = datetime.now(timezone.utc).astimezone(zoneinfo.ZoneInfo("Africa/Johannesburg")).strftime("%Y-%m-%d %H:%M")
-            if len(topresults) > 0:
+            if len(topresults_prices) > 0: # sometimes finds a "product card" but it's not actually a product e.g. "Eat Sum Mores" finds "Eat More Avo" article 
                 cheapest_price = min(topresults_prices)
                 cheapest_result = topresults[topresults_prices.index(cheapest_price)]
                 update_json = {
